@@ -5,7 +5,7 @@
       "description": "Gérer les mots-clés de veille du serveur",
       "list": {
         "title": "📚 Mots-clés de veille",
-        "empty": "Aucun mot-clé configuré. Cliquez sur **➕ Ajouter** pour commencer !",
+        "empty": "Aucun mot-clé configuré. \nCliquez sur **➕ Ajouter** pour commencer !",
         "footer": "{{count}} mot(s)-clé(s) configuré(s)",
         "page": "Page {{current}}/{{total}}"
       },
@@ -50,6 +50,11 @@
         "description": "Changer la langue du bot pour ce serveur",
         "success": "Langue réglée sur **{{language}}**."
       },
+      "sources": {
+        "description": "Choisir les sources à utiliser",
+        "updated": "Sources mises à jour :",
+        "min_one": "Vous devez garder au moins une source activée."
+      },
       "toggle": {
         "description": "Activer ou désactiver la veille",
         "enabled": "Veille **activée** pour ce serveur.",
@@ -61,6 +66,7 @@
         "channel": "Salon",
         "schedule": "Planning",
         "language": "Langue",
+        "sources": "Sources",
         "active": "Actif",
         "keywords_count": "Mots-clés",
         "yes": "Oui",
@@ -80,10 +86,7 @@
   "embeds": {
     "notification": {
       "title": "📄 Nouvelles publications trouvées",
-      "footer": "ScholarWatch • {{date}}",
-      "authors": "Auteurs",
-      "year": "Année",
-      "source": "Source"
+      "authors": "Auteurs"
     },
     "welcome": {
       "title": "👋 ScholarWatch est prêt !",

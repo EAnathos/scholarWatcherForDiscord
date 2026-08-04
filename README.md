@@ -46,7 +46,7 @@ ScholarWatchForDiscord monitors Google Scholar for new publications matching you
    DISCORD_TOKEN=your_discord_bot_token
    DISCORD_APP_ID=your_discord_application_id
    SERPAPI_KEY=your_serpapi_key
-   DATABASE_URL=postgresql://bot:bot@db:5432/veille
+   DATABASE_URL=postgresql://bot:bot@db:5432/scholarwatch
    LOG_LEVEL=info
    ```
 

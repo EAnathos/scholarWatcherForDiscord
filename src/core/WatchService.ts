@@ -2,7 +2,8 @@ import type { Client, TextChannel } from 'discord.js';
 import * as cron from 'node-cron';
 import { configService } from './ConfigService.js';
 import { dedupService } from './DedupService.js';
-import { serpApiScholar } from '../sources/SerpApiScholar.js';
+import type { RawArticle } from './DedupService.js';
+import { getAdapters } from '../sources/registry.js';
 import { buildNotificationEmbed } from '../utils/embeds.js';
 import { logger } from '../utils/logger.js';
 
@@ -68,11 +69,22 @@ export class WatchService {
 
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const keywordValues = keywords.map((k) => k.value);
+    const sourceKeys = configService.getSourceList(guild);
+    const adapters = getAdapters(sourceKeys);
 
-    logger.info({ guildId, keywords: keywordValues.length }, 'Running search');
+    logger.info({ guildId, keywords: keywordValues.length, sources: sourceKeys }, 'Running search');
 
-    const rawArticles = await serpApiScholar.search(keywordValues, since);
-    const newArticles = await dedupService.filterNew(guildId, rawArticles);
+    const allRawArticles: RawArticle[] = [];
+    for (const adapter of adapters) {
+      try {
+        const results = await adapter.search(keywordValues, since, guildId);
+        allRawArticles.push(...results);
+      } catch (error) {
+        logger.error({ guildId, source: adapter.name, error }, 'Source search failed');
+      }
+    }
+
+    const newArticles = await dedupService.filterNew(guildId, allRawArticles);
 
     if (newArticles.length === 0) {
       logger.info({ guildId, elapsed_ms: Date.now() - startTime }, 'No new articles');

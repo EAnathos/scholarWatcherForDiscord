@@ -33,10 +33,13 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "discord.js": "^14.27.0",
+    "dotenv": "^17.4.2",
     "i18next": "^26.3.6",
     "node-cron": "^4.6.0",
+    "pg": "^8.22.0",
     "pino": "^10.3.1",
     "undici": "^8.10.0",
     "zod": "^4.4.3"
@@ -46,6 +49,7 @@
     "@commitlint/config-conventional": "^21.2.0",
     "@types/node": "^26.1.2",
     "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.20.3",
     "@typescript-eslint/eslint-plugin": "^8.66.0",
     "@typescript-eslint/parser": "^8.66.0",
     "eslint": "^10.8.0",

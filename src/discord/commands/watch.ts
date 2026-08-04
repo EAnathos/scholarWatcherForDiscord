@@ -9,6 +9,7 @@ import { configService } from '../../core/ConfigService.js';
 import type { WatchService } from '../../core/WatchService.js';
 import { t } from '../../i18n/index.js';
 import { buildStatusEmbed } from '../../utils/embeds.js';
+import { AVAILABLE_SOURCES } from '../../sources/registry.js';
 
 let watchService: WatchService | null = null;
 
@@ -63,6 +64,18 @@ export const data = new SlashCommandBuilder()
           .setDescription('Language')
           .setRequired(true)
           .addChoices({ name: 'English', value: 'en' }, { name: 'Français', value: 'fr' }),
+      ),
+  )
+  .addSubcommand((sub) =>
+    sub
+      .setName('sources')
+      .setDescription('Choose which sources to use')
+      .addStringOption((opt) =>
+        opt
+          .setName('source')
+          .setDescription('Source to toggle')
+          .setRequired(true)
+          .addChoices(...AVAILABLE_SOURCES.map((s) => ({ name: s, value: s }))),
       ),
   )
   .addSubcommand((sub) => sub.setName('toggle').setDescription('Enable or disable the watch'))
@@ -129,6 +142,33 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     return;
   }
 
+  if (sub === 'sources') {
+    const source = interaction.options.getString('source', true);
+    const current = configService.getSourceList(guild);
+    let updated: string[];
+
+    if (current.includes(source)) {
+      updated = current.filter((s) => s !== source);
+      if (updated.length === 0) {
+        await interaction.reply({
+          content: t('commands.watch.sources.min_one', lang),
+          flags: ['Ephemeral'],
+        });
+        return;
+      }
+    } else {
+      updated = [...current, source];
+    }
+
+    await configService.setSources(guildId, updated);
+    const status = AVAILABLE_SOURCES.map((s) => `${updated.includes(s) ? '✅' : '❌'} ${s}`).join('\n');
+    await interaction.reply({
+      content: t('commands.watch.sources.updated', lang) + '\n' + status,
+      flags: ['Ephemeral'],
+    });
+    return;
+  }
+
   if (sub === 'toggle') {
     const updated = await configService.toggleEnabled(guildId);
     if (updated.enabled) {
@@ -150,6 +190,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         channelId: guild.channelId,
         cronSchedule: guild.cronSchedule,
         language: guild.language,
+        sources: configService.getSourceList(guild),
         enabled: guild.enabled,
         keywordsCount: keywords.length,
       },

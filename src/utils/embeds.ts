@@ -4,29 +4,20 @@ import { t } from '../i18n/index.js';
 export interface ArticleData {
   title: string;
   authors?: string | null;
-  year?: number | null;
   link: string;
-  source: string;
 }
 
 export function buildNotificationEmbed(articles: ArticleData[], lang: string): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(t('embeds.notification.title', lang))
     .setColor(0x4285f4)
-    .setFooter({
-      text: t('embeds.notification.footer', lang, { date: new Date().toLocaleDateString() }),
-    })
-    .setTimestamp();
+    .setFooter({ text: `ScholarWatch • ${new Date().toLocaleDateString()}` });
 
   for (const article of articles.slice(0, 10)) {
     const parts: string[] = [];
     if (article.authors) {
       parts.push(`${t('embeds.notification.authors', lang)}: ${article.authors}`);
     }
-    if (article.year) {
-      parts.push(`${t('embeds.notification.year', lang)}: ${article.year}`);
-    }
-    parts.push(`${t('embeds.notification.source', lang)}: ${article.source}`);
 
     embed.addFields({
       name: article.title.slice(0, 256),
@@ -75,6 +66,7 @@ export function buildStatusEmbed(
     channelId: string | null;
     cronSchedule: string;
     language: string;
+    sources: string[];
     enabled: boolean;
     keywordsCount: number;
   },
@@ -97,6 +89,11 @@ export function buildStatusEmbed(
       {
         name: t('commands.watch.status.language', lang),
         value: config.language.toUpperCase(),
+        inline: true,
+      },
+      {
+        name: t('commands.watch.status.sources', lang),
+        value: config.sources.join(', '),
         inline: true,
       },
       {

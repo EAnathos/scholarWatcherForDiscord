@@ -38,8 +38,7 @@ export class SerpApiScholar implements SourceAdapter {
       q: query,
       api_key: env.SERPAPI_KEY,
       as_ylo: String(new Date().getFullYear()),
-      scisbd: '1',
-      num: '20',
+      num: '10',
     });
 
     const url = `https://serpapi.com/search.json?${params.toString()}`;
@@ -50,7 +49,9 @@ export class SerpApiScholar implements SourceAdapter {
       return [];
     }
 
-    return (data.organic_results ?? []).map((result) => this.mapResult(result));
+    return (data.organic_results ?? [])
+      .filter((result) => result.link)
+      .map((result) => this.mapResult(result));
   }
 
   private mapResult(result: SerpApiOrganicResult): RawArticle {

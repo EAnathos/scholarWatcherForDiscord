@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Guild" ADD COLUMN "antcatLastRefId" INTEGER NOT NULL DEFAULT 144725;

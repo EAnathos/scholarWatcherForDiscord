@@ -15,7 +15,7 @@ describe('env validation', () => {
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
       SERPAPI_KEY: 'key',
-      DATABASE_URL: 'postgresql://bot:bot@db:5432/veille',
+      DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
       LOG_LEVEL: 'info',
     });
     expect(result.success).toBe(true);
@@ -26,7 +26,7 @@ describe('env validation', () => {
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
       SERPAPI_KEY: 'key',
-      DATABASE_URL: 'postgresql://bot:bot@db:5432/veille',
+      DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -44,7 +44,7 @@ describe('env validation', () => {
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
       SERPAPI_KEY: 'key',
-      DATABASE_URL: 'postgresql://bot:bot@db:5432/veille',
+      DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
       LOG_LEVEL: 'verbose',
     });
     expect(result.success).toBe(false);

@@ -6,11 +6,11 @@ services:
     environment:
       POSTGRES_USER: bot
       POSTGRES_PASSWORD: bot
-      POSTGRES_DB: veille
+      POSTGRES_DB: scholarwatch
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bot -d veille"]
+      test: ["CMD-SHELL", "pg_isready -U bot -d scholarwatch"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,7 +24,7 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://bot:bot@db:5432/veille
+      DATABASE_URL: postgresql://bot:bot@db:5432/scholarwatch
     healthcheck:
       test: ["CMD", "sh", "-c", "[ $(( $(date +%s) - $(stat -c %Y /tmp/healthy 2>/dev/null || echo 0) )) -lt 60 ]"]
       interval: 30s

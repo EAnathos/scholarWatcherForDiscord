@@ -45,6 +45,17 @@ export class ConfigService {
     });
   }
 
+  async setSources(guildId: string, sources: string[]): Promise<Guild> {
+    return prisma.guild.update({
+      where: { id: guildId },
+      data: { sources: sources.join(',') },
+    });
+  }
+
+  getSourceList(guild: Guild): string[] {
+    return guild.sources.split(',').filter(Boolean);
+  }
+
   async disableGuild(guildId: string): Promise<void> {
     await prisma.guild.update({
       where: { id: guildId },

@@ -5,7 +5,7 @@
       "description": "Manage watch keywords for this server",
       "list": {
         "title": "📚 Watch Keywords",
-        "empty": "No keywords configured yet. Click **➕ Add** to get started!",
+        "empty": "No keywords configured yet. \nClick **➕ Add** to get started!",
         "footer": "{{count}} keyword(s) configured",
         "page": "Page {{current}}/{{total}}"
       },
@@ -50,6 +50,11 @@
         "description": "Set the bot language for this server",
         "success": "Language set to **{{language}}**."
       },
+      "sources": {
+        "description": "Choose which sources to use",
+        "updated": "Sources updated:",
+        "min_one": "You must keep at least one source enabled."
+      },
       "toggle": {
         "description": "Enable or disable the watch",
         "enabled": "Watch **enabled** for this server.",
@@ -61,6 +66,7 @@
         "channel": "Channel",
         "schedule": "Schedule",
         "language": "Language",
+        "sources": "Sources",
         "active": "Active",
         "keywords_count": "Keywords",
         "yes": "Yes",
@@ -80,10 +86,7 @@
   "embeds": {
     "notification": {
       "title": "📄 New publications found",
-      "footer": "ScholarWatch • {{date}}",
-      "authors": "Authors",
-      "year": "Year",
-      "source": "Source"
+      "authors": "Authors"
     },
     "welcome": {
       "title": "👋 ScholarWatch is ready!",
