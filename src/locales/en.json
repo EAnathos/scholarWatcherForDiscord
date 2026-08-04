@@ -1,0 +1,97 @@
+{
+  "commands": {
+    "keywords": {
+      "title": "Keywords",
+      "description": "Manage watch keywords for this server",
+      "list": {
+        "title": "📚 Watch Keywords",
+        "empty": "No keywords configured yet. Click **➕ Add** to get started!",
+        "footer": "{{count}} keyword(s) configured",
+        "page": "Page {{current}}/{{total}}"
+      },
+      "add": {
+        "button": "➕ Add",
+        "modal_title": "Add a keyword",
+        "input_label": "New keyword",
+        "input_placeholder": "e.g. Formicidae OR \"Camponotus\"",
+        "success": "Keyword **{{keyword}}** added!",
+        "duplicate": "Keyword **{{keyword}}** already exists.",
+        "invalid": "Invalid keyword. Must be between 2 and 200 characters."
+      },
+      "remove": {
+        "button": "➖ Remove",
+        "modal_title": "Remove a keyword",
+        "input_label": "ID to remove",
+        "input_placeholder": "1",
+        "success": "Keyword #{{id}} removed!",
+        "not_found": "Keyword #{{id}} not found on this server.",
+        "invalid": "Please enter a valid numeric ID."
+      }
+    },
+    "watch": {
+      "description": "Configure bibliographic watch settings",
+      "channel": {
+        "description": "Set the notification channel",
+        "success": "Notifications will be sent to {{channel}}.",
+        "missing": "Please specify a text channel."
+      },
+      "schedule": {
+        "hour": {
+          "description": "Set daily check hour (UTC)",
+          "success": "Daily check set to **{{hour}}:00 UTC**."
+        },
+        "cron": {
+          "description": "Set a custom cron schedule",
+          "success": "Schedule set to `{{cron}}`.",
+          "invalid": "Invalid cron expression."
+        }
+      },
+      "language": {
+        "description": "Set the bot language for this server",
+        "success": "Language set to **{{language}}**."
+      },
+      "toggle": {
+        "description": "Enable or disable the watch",
+        "enabled": "Watch **enabled** for this server.",
+        "disabled": "Watch **disabled** for this server."
+      },
+      "status": {
+        "description": "Show current watch configuration",
+        "title": "⚙️ Watch Status",
+        "channel": "Channel",
+        "schedule": "Schedule",
+        "language": "Language",
+        "active": "Active",
+        "keywords_count": "Keywords",
+        "yes": "Yes",
+        "no": "No",
+        "not_set": "Not set"
+      },
+      "run": {
+        "description": "Force an immediate check (admin only)",
+        "started": "Manual check started…",
+        "completed": "Check completed! {{count}} new article(s) found.",
+        "no_results": "Check completed. No new articles found.",
+        "no_channel": "No notification channel set. Use `/watch channel` first.",
+        "no_keywords": "No keywords configured. Use `/keywords` to add some."
+      }
+    }
+  },
+  "embeds": {
+    "notification": {
+      "title": "📄 New publications found",
+      "footer": "ScholarWatch • {{date}}",
+      "authors": "Authors",
+      "year": "Year",
+      "source": "Source"
+    },
+    "welcome": {
+      "title": "👋 ScholarWatch is ready!",
+      "description": "I monitor scientific publications and notify you of new results.\n\nGet started:\n• `/keywords` — manage your watch keywords\n• `/watch channel #channel` — set the notification channel\n• `/watch status` — view current configuration"
+    }
+  },
+  "errors": {
+    "no_permission": "You need the **Manage Server** permission to use this command.",
+    "generic": "An error occurred. Please try again later."
+  }
+}

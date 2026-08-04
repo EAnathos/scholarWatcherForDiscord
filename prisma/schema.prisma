@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Guild {
+  id           String    @id
+  channelId    String?
+  cronSchedule String    @default("0 4 * * *")
+  language     String    @default("en")
+  enabled      Boolean   @default(true)
+  keywords     Keyword[]
+  articles     Article[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Keyword {
+  id        Int      @id @default(autoincrement())
+  guildId   String
+  value     String
+  createdAt DateTime @default(now())
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, value])
+}
+
+model Article {
+  id         Int      @id @default(autoincrement())
+  guildId    String
+  externalId String
+  source     String
+  title      String
+  authors    String?
+  year       Int?
+  link       String
+  doi        String?
+  notifiedAt DateTime @default(now())
+  guild      Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([guildId, externalId])
+  @@index([guildId, title])
+}

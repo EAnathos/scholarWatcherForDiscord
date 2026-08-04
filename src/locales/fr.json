@@ -1,0 +1,97 @@
+{
+  "commands": {
+    "keywords": {
+      "title": "Mots-clés",
+      "description": "Gérer les mots-clés de veille du serveur",
+      "list": {
+        "title": "📚 Mots-clés de veille",
+        "empty": "Aucun mot-clé configuré. Cliquez sur **➕ Ajouter** pour commencer !",
+        "footer": "{{count}} mot(s)-clé(s) configuré(s)",
+        "page": "Page {{current}}/{{total}}"
+      },
+      "add": {
+        "button": "➕ Ajouter",
+        "modal_title": "Ajouter un mot-clé",
+        "input_label": "Nouveau mot-clé",
+        "input_placeholder": "ex : Formicidae OR \"Camponotus\"",
+        "success": "Mot-clé **{{keyword}}** ajouté !",
+        "duplicate": "Le mot-clé **{{keyword}}** existe déjà.",
+        "invalid": "Mot-clé invalide. Doit contenir entre 2 et 200 caractères."
+      },
+      "remove": {
+        "button": "➖ Supprimer",
+        "modal_title": "Supprimer un mot-clé",
+        "input_label": "ID à supprimer",
+        "input_placeholder": "1",
+        "success": "Mot-clé #{{id}} supprimé !",
+        "not_found": "Mot-clé #{{id}} introuvable sur ce serveur.",
+        "invalid": "Veuillez entrer un ID numérique valide."
+      }
+    },
+    "watch": {
+      "description": "Configurer les paramètres de veille bibliographique",
+      "channel": {
+        "description": "Définir le salon de notification",
+        "success": "Les notifications seront envoyées dans {{channel}}.",
+        "missing": "Veuillez spécifier un salon textuel."
+      },
+      "schedule": {
+        "hour": {
+          "description": "Définir l'heure de vérification quotidienne (UTC)",
+          "success": "Vérification quotidienne réglée à **{{hour}}h00 UTC**."
+        },
+        "cron": {
+          "description": "Définir un planning cron personnalisé",
+          "success": "Planning réglé sur `{{cron}}`.",
+          "invalid": "Expression cron invalide."
+        }
+      },
+      "language": {
+        "description": "Changer la langue du bot pour ce serveur",
+        "success": "Langue réglée sur **{{language}}**."
+      },
+      "toggle": {
+        "description": "Activer ou désactiver la veille",
+        "enabled": "Veille **activée** pour ce serveur.",
+        "disabled": "Veille **désactivée** pour ce serveur."
+      },
+      "status": {
+        "description": "Afficher la configuration actuelle",
+        "title": "⚙️ Statut de la veille",
+        "channel": "Salon",
+        "schedule": "Planning",
+        "language": "Langue",
+        "active": "Actif",
+        "keywords_count": "Mots-clés",
+        "yes": "Oui",
+        "no": "Non",
+        "not_set": "Non défini"
+      },
+      "run": {
+        "description": "Forcer une vérification immédiate (admin uniquement)",
+        "started": "Vérification manuelle lancée…",
+        "completed": "Vérification terminée ! {{count}} nouvel(aux) article(s) trouvé(s).",
+        "no_results": "Vérification terminée. Aucun nouvel article trouvé.",
+        "no_channel": "Aucun salon de notification défini. Utilisez `/watch channel` d'abord.",
+        "no_keywords": "Aucun mot-clé configuré. Utilisez `/keywords` pour en ajouter."
+      }
+    }
+  },
+  "embeds": {
+    "notification": {
+      "title": "📄 Nouvelles publications trouvées",
+      "footer": "ScholarWatch • {{date}}",
+      "authors": "Auteurs",
+      "year": "Année",
+      "source": "Source"
+    },
+    "welcome": {
+      "title": "👋 ScholarWatch est prêt !",
+      "description": "Je surveille les publications scientifiques et vous notifie des nouveaux résultats.\n\nPour commencer :\n• `/keywords` — gérer vos mots-clés de veille\n• `/watch channel #salon` — définir le salon de notification\n• `/watch status` — voir la configuration actuelle"
+    }
+  },
+  "errors": {
+    "no_permission": "Vous avez besoin de la permission **Gérer le serveur** pour utiliser cette commande.",
+    "generic": "Une erreur est survenue. Veuillez réessayer plus tard."
+  }
+}

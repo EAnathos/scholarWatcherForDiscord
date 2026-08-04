@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scholarwatch-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bot
+      POSTGRES_PASSWORD: bot
+      POSTGRES_DB: veille
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot -d veille"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build: .
+    container_name: scholarwatch
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://bot:bot@db:5432/veille
+    healthcheck:
+      test: ["CMD", "sh", "-c", "[ $(( $(date +%s) - $(stat -c %Y /tmp/healthy 2>/dev/null || echo 0) )) -lt 60 ]"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  db-data:

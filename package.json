@@ -1,0 +1,66 @@
+{
+  "name": "scholarwatchfordiscord",
+  "version": "1.0.0",
+  "description": "Discord bot for automated bibliographic monitoring via Google Scholar",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "deploy:commands": "tsx src/discord/deploy.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml}": "prettier --write"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "scholar",
+    "research",
+    "bibliographic"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^7.9.1",
+    "discord.js": "^14.27.0",
+    "i18next": "^26.3.6",
+    "node-cron": "^4.6.0",
+    "pino": "^10.3.1",
+    "undici": "^8.10.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@types/node": "^26.1.2",
+    "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/parser": "^8.66.0",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.5",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "prisma@7.9.1": true,
+    "@prisma/engines@7.9.1": true
+  }
+}
