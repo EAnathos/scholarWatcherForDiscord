@@ -64,6 +64,19 @@ Invite the bot with these scopes and permissions:
 - **Scopes:** `bot`, `applications.commands`
 - **Permissions:** `Send Messages`, `Embed Links`, `Use External Emojis`
 
+## Commands
+
+| Command | Description |
+|---|---|
+| `/keywords` | View and manage watch keywords (add/remove via buttons) |
+| `/watch channel <#channel>` | Set the notification channel |
+| `/watch schedule hour <0-23>` | Set daily check time (UTC) |
+| `/watch schedule cron <expr>` | Set a custom cron schedule |
+| `/watch language <en\|fr>` | Change bot language for this server |
+| `/watch toggle` | Enable/disable the watch |
+| `/watch status` | Show current configuration |
+| `/watch run` | Force an immediate check (admin only) |
+
 ## Usage
 
 ### Managing keywords
@@ -77,19 +90,6 @@ Use `/keywords` to view, add, or remove watch keywords for your server.
 When new publications are found, the bot posts them in your configured channel.
 
 ![Notification embed](docs/screenshots/notification.png)
-
-## Commands
-
-| Command | Description |
-|---|---|
-| `/keywords` | View and manage watch keywords (add/remove via buttons) |
-| `/watch channel <#channel>` | Set the notification channel |
-| `/watch schedule hour <0-23>` | Set daily check time (UTC) |
-| `/watch schedule cron <expr>` | Set a custom cron schedule |
-| `/watch language <en\|fr>` | Change bot language for this server |
-| `/watch toggle` | Enable/disable the watch |
-| `/watch status` | Show current configuration |
-| `/watch run` | Force an immediate check (admin only) |
 
 ## License
 
