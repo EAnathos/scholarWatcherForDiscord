@@ -48,7 +48,7 @@ export function buildKeywordsEmbed(
   if (keywords.length === 0) {
     embed.setDescription(t('commands.keywords.list.empty', lang));
   } else {
-    const list = keywords.map((kw) => `\`${kw.id}\`. ${kw.value}`).join('\n');
+    const list = keywords.map((kw, i) => `\`${i + 1}\`. ${kw.value}`).join('\n');
     embed.setDescription(list);
   }
 

@@ -34,8 +34,8 @@ export async function handleRemoveSubmit(interaction: ModalSubmitInteraction): P
   const lang = guild.language;
   const raw = interaction.fields.getTextInputValue('kw_id').trim();
 
-  const id = parseInt(raw, 10);
-  if (isNaN(id)) {
+  const position = parseInt(raw, 10);
+  if (isNaN(position) || position < 1) {
     await interaction.reply({
       content: t('commands.keywords.remove.invalid', lang),
       flags: ['Ephemeral'],
@@ -43,20 +43,23 @@ export async function handleRemoveSubmit(interaction: ModalSubmitInteraction): P
     return;
   }
 
-  const removed = await configService.removeKeyword(guildId, id);
-  if (!removed) {
+  const allKeywords = await configService.getKeywords(guildId);
+  const target = allKeywords[position - 1];
+  if (!target) {
     await interaction.reply({
-      content: t('commands.keywords.remove.not_found', lang, { id: String(id) }),
+      content: t('commands.keywords.remove.not_found', lang, { id: String(position) }),
       flags: ['Ephemeral'],
     });
     return;
   }
 
+  await configService.removeKeyword(guildId, target.id);
+
   const { keywords, totalPages } = await configService.getKeywordsPaginated(guildId, 1);
   const embed = buildKeywordsEmbed(keywords, lang, 1, totalPages);
 
   await interaction.reply({
-    content: t('commands.keywords.remove.success', lang, { id: String(id) }),
+    content: t('commands.keywords.remove.success', lang, { id: String(position) }),
     embeds: [embed],
     flags: ['Ephemeral'],
   });
