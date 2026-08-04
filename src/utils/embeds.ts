@@ -13,7 +13,7 @@ export function buildNotificationEmbed(articles: ArticleData[], lang: string): E
   const embed = new EmbedBuilder()
     .setTitle(t('embeds.notification.title', lang))
     .setColor(0x4285f4)
-    .setFooter({ text: `ScholarWatch • ${date}` });
+    .setFooter({ text: `ScholarWatcher • ${date}` });
 
   for (const article of articles.slice(0, 10)) {
     const parts: string[] = [];
