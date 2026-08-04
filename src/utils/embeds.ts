@@ -8,10 +8,12 @@ export interface ArticleData {
 }
 
 export function buildNotificationEmbed(articles: ArticleData[], lang: string): EmbedBuilder {
+  const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
+  const date = new Date().toLocaleDateString(locale);
   const embed = new EmbedBuilder()
     .setTitle(t('embeds.notification.title', lang))
     .setColor(0x4285f4)
-    .setFooter({ text: `ScholarWatch • ${new Date().toLocaleDateString()}` });
+    .setFooter({ text: `ScholarWatch • ${date}` });
 
   for (const article of articles.slice(0, 10)) {
     const parts: string[] = [];
@@ -21,7 +23,7 @@ export function buildNotificationEmbed(articles: ArticleData[], lang: string): E
 
     embed.addFields({
       name: article.title.slice(0, 256),
-      value: `${parts.join(' • ')}\n[Link](${article.link})`,
+      value: `${parts.join(' • ')}\n[${t('embeds.notification.link', lang)}](${article.link})`,
     });
   }
 

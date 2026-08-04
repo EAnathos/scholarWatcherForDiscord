@@ -86,7 +86,8 @@
   "embeds": {
     "notification": {
       "title": "📄 Nouvelles publications trouvées",
-      "authors": "Auteurs"
+      "authors": "Auteurs",
+      "link": "Lien"
     },
     "welcome": {
       "title": "👋 ScholarWatch est prêt !",
