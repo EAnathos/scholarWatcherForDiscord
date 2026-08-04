@@ -9,8 +9,6 @@
 
 ScholarWatchForDiscord monitors Google Scholar for new publications matching your keywords and delivers them as Discord notifications. Each server configures its own keywords, schedule, and notification channel — the bot works for any research domain, from myrmecology to astrophysics.
 
-![Notification embed](docs/screenshots/notification-embed.png)
-
 ## Features
 
 - **Generic** — no hardcoded domain, everything is driven by keywords
@@ -32,7 +30,7 @@ ScholarWatchForDiscord monitors Google Scholar for new publications matching you
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/scholarwatchfordiscord.git
+   git clone https://github.com/EAnathos/scholarWatchForDiscord.git
    cd scholarwatchfordiscord
    ```
 
@@ -78,12 +76,6 @@ Invite the bot with these scopes and permissions:
 | `/watch toggle` | Enable/disable the watch |
 | `/watch status` | Show current configuration |
 | `/watch run` | Force an immediate check (admin only) |
-
-![Keywords list](docs/screenshots/keywords-list.png)
-
-![Add keyword modal](docs/screenshots/keywords-add-modal.png)
-
-![Status command](docs/screenshots/status-command.png)
 
 ## Contributing
 
