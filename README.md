@@ -7,16 +7,16 @@
 
 ## Overview
 
-ScholarWatchForDiscord monitors Google Scholar for new publications matching your keywords and delivers them as Discord notifications. Each server configures its own keywords, schedule, and notification channel — the bot works for any research domain, from myrmecology to astrophysics.
+ScholarWatchForDiscord monitors Google Scholar for new publications matching your keywords and delivers them as Discord notifications. Each server configures its own keywords, schedule, and notification channel. The bot works for any research domain, from myrmecology to astrophysics.
 
 ## Features
 
-- **Generic** — no hardcoded domain, everything is driven by keywords
-- **Multi-server** — each server has its own configuration
-- **Bilingual** — English by default, French available per server
-- **Deduplication** — articles are tracked to avoid repeat notifications
-- **Customizable schedule** — daily hour or full cron expression
-- **Docker deployment** — one command to run
+- **Generic** : no hardcoded domain, everything is driven by keywords
+- **Multi-server** : each server has its own configuration
+- **Bilingual** : English by default, French available per server
+- **Deduplication** : articles are tracked to avoid repeat notifications
+- **Customizable schedule** : daily hour or full cron expression
+- **Docker deployment** : one command to run
 
 ## Installation
 
@@ -64,6 +64,20 @@ Invite the bot with these scopes and permissions:
 - **Scopes:** `bot`, `applications.commands`
 - **Permissions:** `Send Messages`, `Embed Links`, `Use External Emojis`
 
+## Usage
+
+### Managing keywords
+
+Use `/keywords` to view, add, or remove watch keywords for your server.
+
+![Keywords list](docs/screenshots/keywords-list.png)
+
+### Notifications
+
+When new publications are found, the bot posts them in your configured channel.
+
+![Notification embed](docs/screenshots/notification.png)
+
 ## Commands
 
 | Command | Description |
@@ -76,27 +90,6 @@ Invite the bot with these scopes and permissions:
 | `/watch toggle` | Enable/disable the watch |
 | `/watch status` | Show current configuration |
 | `/watch run` | Force an immediate check (admin only) |
-
-## Contributing
-
-### Adding a new source
-
-1. Create a new file in `src/sources/` implementing the `SourceAdapter` interface
-2. Add a corresponding test in `tests/`
-3. Wire it into `WatchService`
-
-### Development
-
-```bash
-npm install
-npm run dev
-```
-
-### Running tests
-
-```bash
-npm run test
-```
 
 ## License
 
