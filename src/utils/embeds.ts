@@ -52,11 +52,9 @@ export function buildKeywordsEmbed(
     embed.setDescription(list);
   }
 
-  const footerParts = [t('commands.keywords.list.footer', lang, { count: keywords.length })];
   if (totalPages > 1) {
-    footerParts.push(t('commands.keywords.list.page', lang, { current: page, total: totalPages }));
+    embed.setFooter({ text: t('commands.keywords.list.page', lang, { current: page, total: totalPages }) });
   }
-  embed.setFooter({ text: footerParts.join(' • ') });
 
   return embed;
 }
