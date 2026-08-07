@@ -25,7 +25,8 @@ export function buildNotificationEmbed(articles: ArticleData[], lang: string): E
     .setColor(0x4285f4)
     .setFooter({ text: footerText });
 
-  let totalChars = title.length + footerText.length;
+  const maxFooterLen = footerText.length + 20;
+  let totalChars = title.length + maxFooterLen;
 
   for (const article of articles.slice(0, 25)) {
     const name = article.title.slice(0, 256);

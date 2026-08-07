@@ -2,6 +2,7 @@ import { logger } from './logger.js';
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 export async function fetchWithRetry<T>(
   url: string,
@@ -14,22 +15,22 @@ export async function fetchWithRetry<T>(
       headers: options?.headers,
     });
 
-    if (response.status === 429 && attempt <= MAX_RETRIES) {
-      const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-      logger.warn({ attempt, delay, source }, 'Rate limited, retrying');
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      return fetchWithRetry<T>(url, options, attempt + 1);
-    }
-
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      if (RETRYABLE_STATUSES.has(response.status) && attempt <= MAX_RETRIES) {
+        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
+        logger.warn({ attempt, delay, status: response.status, source }, 'Retryable HTTP error, retrying');
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return fetchWithRetry<T>(url, options, attempt + 1);
+      }
+      logger.error({ status: response.status, source }, 'HTTP error');
+      return null;
     }
 
     return (await response.json()) as T;
   } catch (error) {
     if (attempt <= MAX_RETRIES) {
       const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-      logger.warn({ attempt, delay, error, source }, 'Fetch error, retrying');
+      logger.warn({ attempt, delay, source }, 'Network error, retrying');
       await new Promise((resolve) => setTimeout(resolve, delay));
       return fetchWithRetry<T>(url, options, attempt + 1);
     }

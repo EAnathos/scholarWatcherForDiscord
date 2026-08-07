@@ -91,25 +91,21 @@ export class WatchService {
       return 0;
     }
 
-    try {
-      const channel = await this.client.channels.fetch(guild.channelId);
-      if (!channel?.isTextBased() || channel.isDMBased()) {
-        logger.warn({ guildId, channelId: guild.channelId }, 'Channel not found or not a text channel');
-        return 0;
-      }
-
-      const embed = buildNotificationEmbed(newArticles, guild.language);
-      await channel.send({ embeds: [embed] });
+    const channel = await this.client.channels.fetch(guild.channelId).catch(() => null);
+    if (!channel?.isTextBased() || channel.isDMBased()) {
+      logger.warn({ guildId, channelId: guild.channelId }, 'Channel not found or not a text channel');
       await dedupService.markNotified(guildId, newArticles);
-
-      logger.info(
-        { guildId, count: newArticles.length, elapsed_ms: Date.now() - startTime },
-        'Notification sent',
-      );
-    } catch (error) {
-      logger.error({ guildId, error }, 'Failed to send notification');
       return 0;
     }
+
+    try {
+      const embed = buildNotificationEmbed(newArticles, guild.language);
+      await channel.send({ embeds: [embed] });
+    } catch (error) {
+      logger.error({ guildId, error }, 'Failed to send notification');
+    }
+
+    await dedupService.markNotified(guildId, newArticles);
 
     return newArticles.length;
   }

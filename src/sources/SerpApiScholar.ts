@@ -93,4 +93,11 @@ export class SerpApiScholar implements SourceAdapter {
   }
 }
 
+export async function fetchSerpApiAccount(apiKey: string): Promise<SerpApiAccount | null> {
+  return fetchWithRetry<SerpApiAccount>(
+    `https://serpapi.com/account.json?api_key=${apiKey}`,
+    { source: 'serpapi' },
+  );
+}
+
 export const serpApiScholar = new SerpApiScholar();

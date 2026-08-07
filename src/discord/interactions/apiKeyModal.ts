@@ -8,8 +8,7 @@ import {
 } from 'discord.js';
 import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
-import { fetchWithRetry } from '../../utils/fetchWithRetry.js';
-import type { SerpApiAccount } from '../../sources/SerpApiScholar.js';
+import { fetchSerpApiAccount } from '../../sources/SerpApiScholar.js';
 
 export async function showApiKeyModal(
   interaction: ChatInputCommandInteraction,
@@ -40,10 +39,7 @@ export async function handleApiKeySubmit(interaction: ModalSubmitInteraction): P
 
   await interaction.deferReply({ flags: ['Ephemeral'] });
 
-  const account = await fetchWithRetry<SerpApiAccount>(
-    `https://serpapi.com/account.json?api_key=${apiKey}`,
-    { source: 'serpapi' },
-  );
+  const account = await fetchSerpApiAccount(apiKey);
 
   if (!account?.plan_name) {
     await interaction.editReply({

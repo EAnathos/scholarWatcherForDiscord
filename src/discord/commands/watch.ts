@@ -11,8 +11,7 @@ import { t } from '../../i18n/index.js';
 import { buildStatusEmbed, buildUsageEmbed } from '../../utils/embeds.js';
 import { AVAILABLE_SOURCES } from '../../sources/registry.js';
 import { showApiKeyModal } from '../interactions/apiKeyModal.js';
-import { fetchWithRetry } from '../../utils/fetchWithRetry.js';
-import type { SerpApiAccount } from '../../sources/SerpApiScholar.js';
+import { fetchSerpApiAccount } from '../../sources/SerpApiScholar.js';
 
 let watchService: WatchService | null = null;
 
@@ -163,10 +162,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
     await interaction.deferReply({ flags: ['Ephemeral'] });
 
-    const account = await fetchWithRetry<SerpApiAccount>(
-      `https://serpapi.com/account.json?api_key=${apiKey}`,
-      { source: 'serpapi' },
-    );
+    const account = await fetchSerpApiAccount(apiKey);
 
     if (!account) {
       await interaction.editReply({ content: t('errors.generic', lang) });
