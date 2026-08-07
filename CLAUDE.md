@@ -9,8 +9,10 @@ Discord bot for automated bibliographic monitoring. Watches Google Scholar (via 
 - `npm run test` — run tests
 - `npm run lint` — lint source files
 - `npm run prisma:migrate` — run database migrations
-- `npm run deploy:commands` — register Discord slash commands globally
+- `npm run deploy:commands` — register Discord slash commands globally (local dev)
 - `npm run deploy:commands -- --guild=ID` — register commands on a single guild (instant)
+- `docker compose exec bot node dist/discord/deploy.js` — register commands from Docker
+- `docker compose exec bot node dist/discord/deploy.js --guild=ID` — register on a single guild from Docker
 
 ## Architecture
 

@@ -55,7 +55,11 @@ ScholarWatchForDiscord monitors Google Scholar for new publications matching you
 
 5. Register slash commands:
    ```bash
-   npm run deploy:commands
+   docker compose exec bot node dist/discord/deploy.js
+   ```
+   Global commands can take up to 1 hour to appear. For instant registration on a single server:
+   ```bash
+   docker compose exec bot node dist/discord/deploy.js --guild=YOUR_GUILD_ID
    ```
 
 ### Bot invitation
@@ -75,6 +79,8 @@ Invite the bot with these scopes and permissions:
 | `/watch language <en\|fr>` | Change bot language for this server |
 | `/watch toggle` | Enable/disable the watch |
 | `/watch status` | Show current configuration |
+| `/watch apikey set` | Set your SerpApi API key (via modal) |
+| `/watch apikey usage` | Show SerpApi usage stats |
 | `/watch run` | Force an immediate check (admin only) |
 
 ## Usage
