@@ -78,7 +78,7 @@
         "modal_title": "Définir la clé API SerpApi",
         "input_label": "Clé API",
         "input_placeholder": "Collez votre clé SerpApi ici",
-        "success": "Clé API enregistrée ! Plan : **{{plan}}** — {{remaining}} recherches restantes.",
+        "success": "Clé API enregistrée !\nPlus d'informations avec `/watch apikey usage`.",
         "invalid": "Clé API invalide. Veuillez vérifier et réessayer.",
         "no_key": "Aucune clé API configurée. Utilisez `/watch apikey set` d'abord.",
         "usage_title": "📊 Utilisation SerpApi",

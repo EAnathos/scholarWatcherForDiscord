@@ -78,7 +78,7 @@
         "modal_title": "Set SerpApi API Key",
         "input_label": "API Key",
         "input_placeholder": "Paste your SerpApi key here",
-        "success": "API key saved! Plan: **{{plan}}** — {{remaining}} searches remaining.",
+        "success": "API key saved!\nMore info with `/watch apikey usage`.",
         "invalid": "Invalid API key. Please check and try again.",
         "no_key": "No API key configured. Use `/watch apikey set` first.",
         "usage_title": "📊 SerpApi Usage",

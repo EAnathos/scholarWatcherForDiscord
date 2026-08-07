@@ -55,9 +55,6 @@ export async function handleApiKeySubmit(interaction: ModalSubmitInteraction): P
   await configService.setSerpApiKey(guildId, apiKey);
 
   await interaction.editReply({
-    content: t('commands.watch.apikey.success', lang, {
-      plan: account.plan_name,
-      remaining: String(account.total_searches_left ?? '?'),
-    }),
+    content: t('commands.watch.apikey.success', lang),
   });
 }
