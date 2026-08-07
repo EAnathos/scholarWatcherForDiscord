@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 const envSchema = z.object({
   DISCORD_TOKEN: z.string().min(1),
   DISCORD_APP_ID: z.string().min(1),
-  SERPAPI_KEY: z.string().min(1),
+  ENCRYPTION_KEY: z.string().length(64).regex(/^[0-9a-f]+$/i),
   DATABASE_URL: z.string().url(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 });

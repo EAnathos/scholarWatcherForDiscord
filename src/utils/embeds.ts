@@ -1,5 +1,7 @@
-import { EmbedBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { t } from '../i18n/index.js';
+import { KEYWORDS_PER_PAGE } from '../core/ConfigService.js';
+import type { SerpApiAccount } from '../sources/SerpApiScholar.js';
 
 export interface ArticleData {
   title: string;
@@ -7,24 +9,42 @@ export interface ArticleData {
   link: string;
 }
 
+const EMBED_CHAR_LIMIT = 6000;
+const FIELD_VALUE_LIMIT = 1024;
+
 export function buildNotificationEmbed(articles: ArticleData[], lang: string): EmbedBuilder {
   const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
   const date = new Date().toLocaleDateString(locale);
-  const embed = new EmbedBuilder()
-    .setTitle(t('embeds.notification.title', lang))
-    .setColor(0x4285f4)
-    .setFooter({ text: `ScholarWatcher • ${date}` });
+  const title = t('embeds.notification.title', lang);
+  const footerText = `ScholarWatcher • ${date}`;
+  const authorsLabel = t('embeds.notification.authors', lang);
+  const linkLabel = t('embeds.notification.link', lang);
 
-  for (const article of articles.slice(0, 10)) {
+  const embed = new EmbedBuilder()
+    .setTitle(title)
+    .setColor(0x4285f4)
+    .setFooter({ text: footerText });
+
+  let totalChars = title.length + footerText.length;
+
+  for (const article of articles.slice(0, 25)) {
+    const name = article.title.slice(0, 256);
     const parts: string[] = [];
     if (article.authors) {
-      parts.push(`${t('embeds.notification.authors', lang)}: ${article.authors}`);
+      parts.push(`${authorsLabel}: ${article.authors}`);
     }
+    const value = `${parts.join(' • ')}\n[${linkLabel}](${article.link})`.slice(0, FIELD_VALUE_LIMIT);
 
-    embed.addFields({
-      name: article.title.slice(0, 256),
-      value: `${parts.join(' • ')}\n[${t('embeds.notification.link', lang)}](${article.link})`,
-    });
+    if (totalChars + name.length + value.length > EMBED_CHAR_LIMIT) break;
+
+    embed.addFields({ name, value });
+    totalChars += name.length + value.length;
+  }
+
+  const addedCount = embed.data.fields?.length ?? 0;
+  if (addedCount < articles.length) {
+    const omitted = articles.length - addedCount;
+    embed.setFooter({ text: `${footerText} • +${omitted} article(s)` });
   }
 
   return embed;
@@ -50,7 +70,8 @@ export function buildKeywordsEmbed(
   if (keywords.length === 0) {
     embed.setDescription(t('commands.keywords.list.empty', lang));
   } else {
-    const list = keywords.map((kw, i) => `\`${i + 1}\`. ${kw.value}`).join('\n');
+    const offset = (page - 1) * KEYWORDS_PER_PAGE;
+    const list = keywords.map((kw, i) => `\`${offset + i + 1}\`. ${kw.value}`).join('\n');
     embed.setDescription(list);
   }
 
@@ -61,6 +82,43 @@ export function buildKeywordsEmbed(
   return embed;
 }
 
+export function buildKeywordsComponents(
+  lang: string,
+  page: number,
+  totalPages: number,
+): ActionRowBuilder<ButtonBuilder>[] {
+  const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('kw_add')
+      .setLabel(t('commands.keywords.add.button', lang))
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId('kw_remove')
+      .setLabel(t('commands.keywords.remove.button', lang))
+      .setStyle(ButtonStyle.Danger),
+  );
+
+  const components: ActionRowBuilder<ButtonBuilder>[] = [actions];
+
+  if (totalPages > 1) {
+    const pagination = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`kw_prev_${page}`)
+        .setLabel('◀')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page <= 1),
+      new ButtonBuilder()
+        .setCustomId(`kw_next_${page}`)
+        .setLabel('▶')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page >= totalPages),
+    );
+    components.push(pagination);
+  }
+
+  return components;
+}
+
 export function buildStatusEmbed(
   config: {
     channelId: string | null;
@@ -69,6 +127,7 @@ export function buildStatusEmbed(
     sources: string[];
     enabled: boolean;
     keywordsCount: number;
+    hasSerpApiKey: boolean;
   },
   lang: string,
 ): EmbedBuilder {
@@ -106,6 +165,41 @@ export function buildStatusEmbed(
       {
         name: t('commands.watch.status.keywords_count', lang),
         value: String(config.keywordsCount),
+        inline: true,
+      },
+      {
+        name: t('commands.watch.status.api_key', lang),
+        value: config.hasSerpApiKey
+          ? t('commands.watch.status.yes', lang)
+          : t('commands.watch.status.no', lang),
+        inline: true,
+      },
+    );
+}
+
+export function buildUsageEmbed(account: SerpApiAccount, lang: string): EmbedBuilder {
+  return new EmbedBuilder()
+    .setTitle(t('commands.watch.apikey.usage_title', lang))
+    .setColor(0x4285f4)
+    .addFields(
+      {
+        name: t('commands.watch.apikey.plan', lang),
+        value: account.plan_name ?? '—',
+        inline: true,
+      },
+      {
+        name: t('commands.watch.apikey.remaining', lang),
+        value: String(account.total_searches_left ?? '—'),
+        inline: true,
+      },
+      {
+        name: t('commands.watch.apikey.month_usage', lang),
+        value: String(account.this_month_usage ?? '—'),
+        inline: true,
+      },
+      {
+        name: t('commands.watch.apikey.hour_usage', lang),
+        value: String(account.this_hour_usage ?? '—'),
         inline: true,
       },
     );

@@ -2,6 +2,7 @@ import type { RawArticle } from '../core/DedupService.js';
 import type { SourceAdapter } from './SourceAdapter.js';
 import { prisma } from '../prisma/client.js';
 import { logger } from '../utils/logger.js';
+import { fetchWithRetry } from '../utils/fetchWithRetry.js';
 
 interface AntCatReferenceData {
   id: number;
@@ -15,9 +16,6 @@ interface AntCatReferenceData {
 
 type AntCatReference = Record<string, AntCatReferenceData>;
 
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 1000;
-
 function getReferenceData(ref: AntCatReference): AntCatReferenceData | null {
   return ref.book_reference ?? ref.article_reference ?? null;
 }
@@ -25,9 +23,7 @@ function getReferenceData(ref: AntCatReference): AntCatReferenceData | null {
 export class AntCatAdapter implements SourceAdapter {
   readonly name = 'antcat';
 
-  async search(_keywords: string[], _since: Date, guildId?: string): Promise<RawArticle[]> {
-    if (!guildId) return [];
-
+  async search(_keywords: string[], _since: Date, guildId: string): Promise<RawArticle[]> {
     const guild = await prisma.guild.findUnique({ where: { id: guildId } });
     if (!guild) return [];
 
@@ -35,9 +31,12 @@ export class AntCatAdapter implements SourceAdapter {
     logger.info({ guildId, lastRefId, source: this.name }, 'Searching from cursor');
 
     const url = `https://antcat.org/v1/references?starts_at=${lastRefId}`;
-    const data = await this.fetchWithRetry(url);
+    const data = await fetchWithRetry<AntCatReference[]>(url, {
+      headers: { Accept: 'application/json' },
+      source: this.name,
+    });
 
-    if (!Array.isArray(data) || data.length === 0) return [];
+    if (!data || data.length === 0) return [];
 
     const articles: RawArticle[] = [];
     let maxId = lastRefId;
@@ -72,36 +71,6 @@ export class AntCatAdapter implements SourceAdapter {
     }
 
     return articles.slice(0, 10);
-  }
-
-  private async fetchWithRetry(url: string, attempt = 1): Promise<AntCatReference[]> {
-    try {
-      const response = await fetch(url, {
-        headers: { Accept: 'application/json' },
-      });
-
-      if (response.status === 429 && attempt <= MAX_RETRIES) {
-        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-        logger.warn({ attempt, delay, source: this.name }, 'Rate limited, retrying');
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.fetchWithRetry(url, attempt + 1);
-      }
-
-      if (!response.ok) {
-        throw new Error(`AntCat HTTP ${response.status}`);
-      }
-
-      return (await response.json()) as AntCatReference[];
-    } catch (error) {
-      if (attempt <= MAX_RETRIES) {
-        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-        logger.warn({ attempt, delay, error, source: this.name }, 'Fetch error, retrying');
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.fetchWithRetry(url, attempt + 1);
-      }
-      logger.error({ error, source: this.name }, 'Fetch failed after retries');
-      return [];
-    }
   }
 }
 

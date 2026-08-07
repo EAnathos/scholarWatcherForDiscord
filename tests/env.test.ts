@@ -5,7 +5,7 @@ describe('env validation', () => {
   const envSchema = z.object({
     DISCORD_TOKEN: z.string().min(1),
     DISCORD_APP_ID: z.string().min(1),
-    SERPAPI_KEY: z.string().min(1),
+    ENCRYPTION_KEY: z.string().length(64).regex(/^[0-9a-f]+$/i),
     DATABASE_URL: z.string().url(),
     LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   });
@@ -14,7 +14,7 @@ describe('env validation', () => {
     const result = envSchema.safeParse({
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
-      SERPAPI_KEY: 'key',
+      ENCRYPTION_KEY: '0'.repeat(64),
       DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
       LOG_LEVEL: 'info',
     });
@@ -25,7 +25,7 @@ describe('env validation', () => {
     const result = envSchema.safeParse({
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
-      SERPAPI_KEY: 'key',
+      ENCRYPTION_KEY: '0'.repeat(64),
       DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
     });
     expect(result.success).toBe(true);
@@ -39,11 +39,21 @@ describe('env validation', () => {
     expect(result.success).toBe(false);
   });
 
+  it('should reject invalid ENCRYPTION_KEY', () => {
+    const result = envSchema.safeParse({
+      DISCORD_TOKEN: 'token',
+      DISCORD_APP_ID: 'app-id',
+      ENCRYPTION_KEY: 'too-short',
+      DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('should reject invalid LOG_LEVEL', () => {
     const result = envSchema.safeParse({
       DISCORD_TOKEN: 'token',
       DISCORD_APP_ID: 'app-id',
-      SERPAPI_KEY: 'key',
+      ENCRYPTION_KEY: '0'.repeat(64),
       DATABASE_URL: 'postgresql://bot:bot@db:5432/scholarwatch',
       LOG_LEVEL: 'verbose',
     });

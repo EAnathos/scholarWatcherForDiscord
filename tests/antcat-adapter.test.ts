@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.stubEnv('DISCORD_TOKEN', 'test');
 vi.stubEnv('DISCORD_APP_ID', 'test');
-vi.stubEnv('SERPAPI_KEY', 'test-key');
+vi.stubEnv('ENCRYPTION_KEY', '0'.repeat(64));
 vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/scholarwatch');
 vi.stubEnv('LOG_LEVEL', 'error');
 
@@ -30,11 +30,6 @@ describe('AntCatAdapter', () => {
     expect(adapter.name).toBe('antcat');
   });
 
-  it('should return empty array without guildId', async () => {
-    const result = await adapter.search([], new Date());
-    expect(result).toEqual([]);
-  });
-
   it('should return empty array if guild not found', async () => {
     mockGuild.findUnique.mockResolvedValueOnce(null);
     const result = await adapter.search(['test'], new Date(), 'unknown');
@@ -50,6 +45,7 @@ describe('AntCatAdapter', () => {
       language: 'en',
       sources: 'antcat',
       enabled: true,
+      serpApiKey: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -112,6 +108,7 @@ describe('AntCatAdapter', () => {
       language: 'en',
       sources: 'antcat',
       enabled: true,
+      serpApiKey: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

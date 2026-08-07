@@ -8,8 +8,11 @@ import cron from 'node-cron';
 import { configService } from '../../core/ConfigService.js';
 import type { WatchService } from '../../core/WatchService.js';
 import { t } from '../../i18n/index.js';
-import { buildStatusEmbed } from '../../utils/embeds.js';
+import { buildStatusEmbed, buildUsageEmbed } from '../../utils/embeds.js';
 import { AVAILABLE_SOURCES } from '../../sources/registry.js';
+import { showApiKeyModal } from '../interactions/apiKeyModal.js';
+import { fetchWithRetry } from '../../utils/fetchWithRetry.js';
+import type { SerpApiAccount } from '../../sources/SerpApiScholar.js';
 
 let watchService: WatchService | null = null;
 
@@ -78,6 +81,17 @@ export const data = new SlashCommandBuilder()
           .addChoices(...AVAILABLE_SOURCES.map((s) => ({ name: s, value: s }))),
       ),
   )
+  .addSubcommandGroup((group) =>
+    group
+      .setName('apikey')
+      .setDescription('Manage SerpApi API key')
+      .addSubcommand((sub) =>
+        sub.setName('set').setDescription('Set your SerpApi API key'),
+      )
+      .addSubcommand((sub) =>
+        sub.setName('usage').setDescription('Show SerpApi usage stats'),
+      ),
+  )
   .addSubcommand((sub) => sub.setName('toggle').setDescription('Enable or disable the watch'))
   .addSubcommand((sub) => sub.setName('status').setDescription('Show current watch configuration'))
   .addSubcommand((sub) =>
@@ -129,6 +143,38 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
       content: t('commands.watch.schedule.cron.success', lang, { cron: expression }),
       flags: ['Ephemeral'],
     });
+    return;
+  }
+
+  if (subgroup === 'apikey' && sub === 'set') {
+    await showApiKeyModal(interaction, lang);
+    return;
+  }
+
+  if (subgroup === 'apikey' && sub === 'usage') {
+    const apiKey = await configService.getSerpApiKey(guildId);
+    if (!apiKey) {
+      await interaction.reply({
+        content: t('commands.watch.apikey.no_key', lang),
+        flags: ['Ephemeral'],
+      });
+      return;
+    }
+
+    await interaction.deferReply({ flags: ['Ephemeral'] });
+
+    const account = await fetchWithRetry<SerpApiAccount>(
+      `https://serpapi.com/account.json?api_key=${apiKey}`,
+      { source: 'serpapi' },
+    );
+
+    if (!account) {
+      await interaction.editReply({ content: t('errors.generic', lang) });
+      return;
+    }
+
+    const embed = buildUsageEmbed(account, lang);
+    await interaction.editReply({ embeds: [embed] });
     return;
   }
 
@@ -193,6 +239,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         sources: configService.getSourceList(guild),
         enabled: guild.enabled,
         keywordsCount: keywords.length,
+        hasSerpApiKey: guild.serpApiKey !== null,
       },
       lang,
     );
@@ -223,7 +270,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
       flags: ['Ephemeral'],
     });
 
-    const count = await watchService!.runForGuild(guildId);
+    if (!watchService) return;
+    const count = await watchService.runForGuild(guildId);
     const key = count > 0 ? 'commands.watch.run.completed' : 'commands.watch.run.no_results';
     await interaction.followUp({
       content: t(key, lang, { count: String(count) }),

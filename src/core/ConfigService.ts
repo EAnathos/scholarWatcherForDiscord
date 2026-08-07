@@ -1,7 +1,9 @@
 import type { Guild, Keyword } from '@prisma/client';
+import * as cron from 'node-cron';
 import { prisma } from '../prisma/client.js';
+import { encrypt, decrypt } from '../utils/crypto.js';
 
-const KEYWORDS_PER_PAGE = 25;
+export const KEYWORDS_PER_PAGE = 25;
 
 export class ConfigService {
   async getOrCreateGuild(guildId: string): Promise<Guild> {
@@ -24,6 +26,9 @@ export class ConfigService {
   }
 
   async setCronSchedule(guildId: string, cronSchedule: string): Promise<Guild> {
+    if (!cron.validate(cronSchedule)) {
+      throw new Error(`Invalid cron expression: ${cronSchedule}`);
+    }
     return prisma.guild.update({
       where: { id: guildId },
       data: { cronSchedule },
@@ -38,10 +43,16 @@ export class ConfigService {
   }
 
   async toggleEnabled(guildId: string): Promise<Guild> {
-    const guild = await this.getOrCreateGuild(guildId);
-    return prisma.guild.update({
-      where: { id: guildId },
-      data: { enabled: !guild.enabled },
+    return prisma.$transaction(async (tx) => {
+      const guild = await tx.guild.upsert({
+        where: { id: guildId },
+        create: { id: guildId },
+        update: {},
+      });
+      return tx.guild.update({
+        where: { id: guildId },
+        data: { enabled: !guild.enabled },
+      });
     });
   }
 
@@ -54,6 +65,19 @@ export class ConfigService {
 
   getSourceList(guild: Guild): string[] {
     return guild.sources.split(',').filter(Boolean);
+  }
+
+  async setSerpApiKey(guildId: string, apiKey: string): Promise<Guild> {
+    return prisma.guild.update({
+      where: { id: guildId },
+      data: { serpApiKey: encrypt(apiKey) },
+    });
+  }
+
+  async getSerpApiKey(guildId: string): Promise<string | null> {
+    const guild = await this.getGuild(guildId);
+    if (!guild?.serpApiKey) return null;
+    return decrypt(guild.serpApiKey);
   }
 
   async disableGuild(guildId: string): Promise<void> {
@@ -75,13 +99,10 @@ export class ConfigService {
   }
 
   async removeKeyword(guildId: string, keywordId: number): Promise<boolean> {
-    const keyword = await prisma.keyword.findFirst({
+    const { count } = await prisma.keyword.deleteMany({
       where: { id: keywordId, guildId },
     });
-    if (!keyword) return false;
-
-    await prisma.keyword.delete({ where: { id: keywordId } });
-    return true;
+    return count > 0;
   }
 
   async getKeywords(guildId: string): Promise<Keyword[]> {
@@ -94,7 +115,7 @@ export class ConfigService {
   async getKeywordsPaginated(
     guildId: string,
     page: number,
-  ): Promise<{ keywords: Keyword[]; totalPages: number }> {
+  ): Promise<{ keywords: Keyword[]; page: number; totalPages: number }> {
     const total = await prisma.keyword.count({ where: { guildId } });
     const totalPages = Math.max(1, Math.ceil(total / KEYWORDS_PER_PAGE));
     const safePage = Math.min(Math.max(1, page), totalPages);
@@ -106,7 +127,7 @@ export class ConfigService {
       take: KEYWORDS_PER_PAGE,
     });
 
-    return { keywords, totalPages };
+    return { keywords, page: safePage, totalPages };
   }
 
   async getEnabledGuilds(): Promise<(Guild & { keywords: Keyword[] })[]> {

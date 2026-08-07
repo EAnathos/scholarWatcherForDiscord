@@ -11,6 +11,7 @@ model Guild {
   channelId    String?
   cronSchedule String    @default("0 4 * * *")
   language     String    @default("en")
+  serpApiKey        String?
   sources          String    @default("serpapi")
   antcatLastRefId  Int       @default(144725)
   enabled          Boolean   @default(true)
@@ -44,5 +45,5 @@ model Article {
   guild      Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@unique([guildId, externalId])
-  @@index([guildId, title])
+  @@index([guildId, source])
 }

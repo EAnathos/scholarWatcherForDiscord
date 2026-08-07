@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto';
 import type { RawArticle } from '../core/DedupService.js';
 import type { SourceAdapter } from './SourceAdapter.js';
-import { env } from '../config/env.js';
+import { configService } from '../core/ConfigService.js';
 import { logger } from '../utils/logger.js';
+import { fetchWithRetry } from '../utils/fetchWithRetry.js';
 
 interface SerpApiOrganicResult {
   title?: string;
@@ -23,29 +24,40 @@ interface SerpApiResponse {
   error?: string;
 }
 
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 1000;
+export interface SerpApiAccount {
+  plan_name?: string;
+  total_searches_left?: number;
+  this_month_usage?: number;
+  this_hour_usage?: number;
+  account_email?: string;
+}
 
 export class SerpApiScholar implements SourceAdapter {
   readonly name = 'serpapi';
 
-  async search(keywords: string[], _since: Date): Promise<RawArticle[]> {
+  async search(keywords: string[], _since: Date, guildId: string): Promise<RawArticle[]> {
     if (keywords.length === 0) return [];
+
+    const apiKey = await configService.getSerpApiKey(guildId);
+    if (!apiKey) {
+      logger.warn({ guildId, source: this.name }, 'No API key configured');
+      return [];
+    }
 
     const query = keywords.join(' OR ');
     const params = new URLSearchParams({
       engine: 'google_scholar',
       q: query,
-      api_key: env.SERPAPI_KEY,
-      as_ylo: String(new Date().getFullYear()),
+      api_key: apiKey,
+      scisbd: '1',
       num: '10',
     });
 
     const url = `https://serpapi.com/search.json?${params.toString()}`;
-    const data = await this.fetchWithRetry(url);
+    const data = await fetchWithRetry<SerpApiResponse>(url, { source: this.name });
 
-    if (data.error) {
-      logger.error({ error: data.error, source: this.name }, 'SerpApi error');
+    if (!data || data.error) {
+      if (data?.error) logger.error({ error: data.error, source: this.name }, 'SerpApi error');
       return [];
     }
 
@@ -78,34 +90,6 @@ export class SerpApiScholar implements SourceAdapter {
       link,
       doi: null,
     };
-  }
-
-  private async fetchWithRetry(url: string, attempt = 1): Promise<SerpApiResponse> {
-    try {
-      const response = await fetch(url);
-
-      if (response.status === 429 && attempt <= MAX_RETRIES) {
-        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-        logger.warn({ attempt, delay, source: this.name }, 'Rate limited, retrying');
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.fetchWithRetry(url, attempt + 1);
-      }
-
-      if (!response.ok) {
-        throw new Error(`SerpApi HTTP ${response.status}`);
-      }
-
-      return (await response.json()) as SerpApiResponse;
-    } catch (error) {
-      if (attempt <= MAX_RETRIES) {
-        const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
-        logger.warn({ attempt, delay, error, source: this.name }, 'Fetch error, retrying');
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.fetchWithRetry(url, attempt + 1);
-      }
-      logger.error({ error, source: this.name }, 'Fetch failed after retries');
-      return {};
-    }
   }
 }
 

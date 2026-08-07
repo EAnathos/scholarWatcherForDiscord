@@ -2,11 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.stubEnv('DISCORD_TOKEN', 'test');
 vi.stubEnv('DISCORD_APP_ID', 'test');
-vi.stubEnv('SERPAPI_KEY', 'test-key');
+vi.stubEnv('ENCRYPTION_KEY', '0'.repeat(64));
 vi.stubEnv('DATABASE_URL', 'postgresql://test:test@localhost:5432/test');
 vi.stubEnv('LOG_LEVEL', 'error');
 
+vi.mock('../src/core/ConfigService.js', () => ({
+  configService: {
+    getSerpApiKey: vi.fn().mockResolvedValue('fake-serpapi-key'),
+  },
+}));
+
 const { SerpApiScholar } = await import('../src/sources/SerpApiScholar.js');
+const { configService } = await import('../src/core/ConfigService.js');
+const mockGetSerpApiKey = vi.mocked(configService.getSerpApiKey);
 
 describe('SerpApiScholar', () => {
   const adapter = new SerpApiScholar();
@@ -20,7 +28,13 @@ describe('SerpApiScholar', () => {
   });
 
   it('should return empty array for empty keywords', async () => {
-    const result = await adapter.search([], new Date());
+    const result = await adapter.search([], new Date(), 'guild1');
+    expect(result).toEqual([]);
+  });
+
+  it('should return empty array when no API key configured', async () => {
+    mockGetSerpApiKey.mockResolvedValueOnce(null);
+    const result = await adapter.search(['test'], new Date(), 'guild1');
     expect(result).toEqual([]);
   });
 
@@ -43,7 +57,7 @@ describe('SerpApiScholar', () => {
       new Response(JSON.stringify(mockResponse), { status: 200 }),
     );
 
-    const results = await adapter.search(['test'], new Date());
+    const results = await adapter.search(['test'], new Date(), 'guild1');
 
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual({
@@ -64,7 +78,7 @@ describe('SerpApiScholar', () => {
       new Response(JSON.stringify(mockResponse), { status: 200 }),
     );
 
-    const results = await adapter.search(['test'], new Date());
+    const results = await adapter.search(['test'], new Date(), 'guild1');
     expect(results).toEqual([]);
   });
 
@@ -82,7 +96,7 @@ describe('SerpApiScholar', () => {
       new Response(JSON.stringify(mockResponse), { status: 200 }),
     );
 
-    const results = await adapter.search(['test'], new Date());
+    const results = await adapter.search(['test'], new Date(), 'guild1');
 
     expect(results).toHaveLength(1);
     expect(results[0].externalId).toMatch(/^scholar\//);

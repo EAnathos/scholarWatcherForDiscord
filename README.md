@@ -43,7 +43,7 @@ ScholarWatchForDiscord monitors Google Scholar for new publications matching you
    ```env
    DISCORD_TOKEN=your_discord_bot_token
    DISCORD_APP_ID=your_discord_application_id
-   SERPAPI_KEY=your_serpapi_key
+   ENCRYPTION_KEY=your_64_char_hex_key    # openssl rand -hex 32
    DATABASE_URL=postgresql://bot:bot@db:5432/scholarwatch
    LOG_LEVEL=info
    ```

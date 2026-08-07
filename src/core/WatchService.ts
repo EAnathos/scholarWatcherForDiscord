@@ -1,4 +1,4 @@
-import type { Client, TextChannel } from 'discord.js';
+import type { Client } from 'discord.js';
 import * as cron from 'node-cron';
 import { configService } from './ConfigService.js';
 import { dedupService } from './DedupService.js';
@@ -91,17 +91,16 @@ export class WatchService {
       return 0;
     }
 
-    await dedupService.markNotified(guildId, newArticles);
-
     try {
-      const channel = (await this.client.channels.fetch(guild.channelId)) as TextChannel | null;
-      if (!channel) {
-        logger.warn({ guildId, channelId: guild.channelId }, 'Channel not found');
-        return newArticles.length;
+      const channel = await this.client.channels.fetch(guild.channelId);
+      if (!channel?.isTextBased() || channel.isDMBased()) {
+        logger.warn({ guildId, channelId: guild.channelId }, 'Channel not found or not a text channel');
+        return 0;
       }
 
       const embed = buildNotificationEmbed(newArticles, guild.language);
       await channel.send({ embeds: [embed] });
+      await dedupService.markNotified(guildId, newArticles);
 
       logger.info(
         { guildId, count: newArticles.length, elapsed_ms: Date.now() - startTime },
@@ -109,6 +108,7 @@ export class WatchService {
       );
     } catch (error) {
       logger.error({ guildId, error }, 'Failed to send notification');
+      return 0;
     }
 
     return newArticles.length;

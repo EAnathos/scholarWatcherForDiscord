@@ -1,7 +1,5 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
+  ChannelType,
   Client,
   type ChatInputCommandInteraction,
   Events,
@@ -13,14 +11,15 @@ import { configService } from '../core/ConfigService.js';
 import { WatchService } from '../core/WatchService.js';
 import { t } from '../i18n/index.js';
 import { logger } from '../utils/logger.js';
-import { buildKeywordsEmbed, buildWelcomeEmbed } from '../utils/embeds.js';
+import { buildKeywordsEmbed, buildKeywordsComponents, buildWelcomeEmbed } from '../utils/embeds.js';
 import * as keywordsCommand from './commands/keywords.js';
 import * as watchCommand from './commands/watch.js';
 import { showAddModal, handleAddSubmit } from './interactions/addKeywordModal.js';
 import { showRemoveModal, handleRemoveSubmit } from './interactions/removeKeywordModal.js';
+import { handleApiKeySubmit } from './interactions/apiKeyModal.js';
 import { writeFileSync } from 'node:fs';
 
-const HEALTH_FILE = '/tmp/healthy';
+export const HEALTH_FILE = '/tmp/healthy';
 
 const commands = new Map<string, { execute: (i: ChatInputCommandInteraction) => Promise<void> }>();
 commands.set('keywords', keywordsCommand);
@@ -64,6 +63,8 @@ export function createBot(): { client: Client; watchService: WatchService } {
 
 async function handleInteraction(interaction: Interaction): Promise<void> {
   try {
+    if (!interaction.guildId) return;
+
     if (interaction.isChatInputCommand()) {
       const command = commands.get(interaction.commandName);
       if (command) {
@@ -73,7 +74,7 @@ async function handleInteraction(interaction: Interaction): Promise<void> {
     }
 
     if (interaction.isButton()) {
-      const guildId = interaction.guildId!;
+      const guildId = interaction.guildId;
       const guild = await configService.getOrCreateGuild(guildId);
       const lang = guild.language;
 
@@ -109,6 +110,10 @@ async function handleInteraction(interaction: Interaction): Promise<void> {
         await handleRemoveSubmit(interaction);
         return;
       }
+      if (interaction.customId === 'apikey_set_modal') {
+        await handleApiKeySubmit(interaction);
+        return;
+      }
     }
   } catch (error) {
     logger.error({ error }, 'Interaction handler error');
@@ -132,38 +137,13 @@ async function handlePagination(
   interaction: import('discord.js').ButtonInteraction,
   guildId: string,
   lang: string,
-  page: number,
+  requestedPage: number,
 ): Promise<void> {
-  const { keywords, totalPages } = await configService.getKeywordsPaginated(guildId, page);
-  const safePage = Math.min(Math.max(1, page), totalPages);
+  const { keywords, page, totalPages } = await configService.getKeywordsPaginated(guildId, requestedPage);
+  const embed = buildKeywordsEmbed(keywords, lang, page, totalPages);
+  const components = buildKeywordsComponents(lang, page, totalPages);
 
-  const embed = buildKeywordsEmbed(keywords, lang, safePage, totalPages);
-
-  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('kw_add')
-      .setLabel(t('commands.keywords.add.button', lang))
-      .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId('kw_remove')
-      .setLabel(t('commands.keywords.remove.button', lang))
-      .setStyle(ButtonStyle.Danger),
-  );
-
-  const pagination = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`kw_prev_${safePage}`)
-      .setLabel('◀')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(safePage <= 1),
-    new ButtonBuilder()
-      .setCustomId(`kw_next_${safePage}`)
-      .setLabel('▶')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(safePage >= totalPages),
-  );
-
-  await interaction.update({ embeds: [embed], components: [buttons, pagination] });
+  await interaction.update({ embeds: [embed], components });
 }
 
 async function handleGuildCreate(client: Client, guildId: string): Promise<void> {
@@ -177,7 +157,7 @@ async function handleGuildCreate(client: Client, guildId: string): Promise<void>
     const textChannel = channels.find(
       (ch): ch is TextChannel =>
         ch !== null &&
-        ch.type === 0 &&
+        ch.type === ChannelType.GuildText &&
         ch.permissionsFor(discordGuild.members.me!)?.has('SendMessages') === true,
     );
 

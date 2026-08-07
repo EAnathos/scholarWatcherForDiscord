@@ -69,9 +69,23 @@
         "sources": "Sources",
         "active": "Actif",
         "keywords_count": "Mots-clés",
+        "api_key": "Clé SerpApi",
         "yes": "Oui",
         "no": "Non",
         "not_set": "Non défini"
+      },
+      "apikey": {
+        "modal_title": "Définir la clé API SerpApi",
+        "input_label": "Clé API",
+        "input_placeholder": "Collez votre clé SerpApi ici",
+        "success": "Clé API enregistrée ! Plan : **{{plan}}** — {{remaining}} recherches restantes.",
+        "invalid": "Clé API invalide. Veuillez vérifier et réessayer.",
+        "no_key": "Aucune clé API configurée. Utilisez `/watch apikey set` d'abord.",
+        "usage_title": "📊 Utilisation SerpApi",
+        "plan": "Plan",
+        "remaining": "Recherches restantes",
+        "month_usage": "Ce mois",
+        "hour_usage": "Cette heure"
       },
       "run": {
         "description": "Forcer une vérification immédiate (admin uniquement)",

@@ -69,9 +69,23 @@
         "sources": "Sources",
         "active": "Active",
         "keywords_count": "Keywords",
+        "api_key": "SerpApi Key",
         "yes": "Yes",
         "no": "No",
         "not_set": "Not set"
+      },
+      "apikey": {
+        "modal_title": "Set SerpApi API Key",
+        "input_label": "API Key",
+        "input_placeholder": "Paste your SerpApi key here",
+        "success": "API key saved! Plan: **{{plan}}** — {{remaining}} searches remaining.",
+        "invalid": "Invalid API key. Please check and try again.",
+        "no_key": "No API key configured. Use `/watch apikey set` first.",
+        "usage_title": "📊 SerpApi Usage",
+        "plan": "Plan",
+        "remaining": "Searches Left",
+        "month_usage": "This Month",
+        "hour_usage": "This Hour"
       },
       "run": {
         "description": "Force an immediate check (admin only)",
