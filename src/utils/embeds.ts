@@ -177,7 +177,21 @@ export function buildStatusEmbed(
     );
 }
 
+const BAR_LENGTH = 20;
+
+function buildUsageBar(used: number, total: number): string {
+  if (total <= 0) return '🟩'.repeat(BAR_LENGTH);
+  const usedBlocks = Math.round((used / total) * BAR_LENGTH);
+  const remainingBlocks = BAR_LENGTH - usedBlocks;
+  return '🟥'.repeat(usedBlocks) + '🟩'.repeat(remainingBlocks);
+}
+
 export function buildUsageEmbed(account: SerpApiAccount, lang: string): EmbedBuilder {
+  const used = account.this_month_usage ?? 0;
+  const remaining = account.total_searches_left ?? 0;
+  const total = used + remaining;
+  const bar = buildUsageBar(used, total);
+
   return new EmbedBuilder()
     .setTitle(t('commands.watch.apikey.usage_title', lang))
     .setColor(0x4285f4)
@@ -187,20 +201,6 @@ export function buildUsageEmbed(account: SerpApiAccount, lang: string): EmbedBui
         value: account.plan_name ?? '—',
         inline: true,
       },
-      {
-        name: t('commands.watch.apikey.remaining', lang),
-        value: String(account.total_searches_left ?? '—'),
-        inline: true,
-      },
-      {
-        name: t('commands.watch.apikey.month_usage', lang),
-        value: String(account.this_month_usage ?? '—'),
-        inline: true,
-      },
-      {
-        name: t('commands.watch.apikey.hour_usage', lang),
-        value: String(account.this_hour_usage ?? '—'),
-        inline: true,
-      },
-    );
+    )
+    .setDescription(`${bar}\n**${remaining}** / ${total} ${t('commands.watch.apikey.remaining', lang).toLowerCase()}`);
 }

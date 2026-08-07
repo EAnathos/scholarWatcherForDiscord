@@ -83,9 +83,7 @@
         "no_key": "Aucune clé API configurée. Utilisez `/watch apikey set` d'abord.",
         "usage_title": "📊 Utilisation SerpApi",
         "plan": "Plan",
-        "remaining": "Recherches restantes",
-        "month_usage": "Ce mois",
-        "hour_usage": "Cette heure"
+        "remaining": "Recherches restantes"
       },
       "run": {
         "description": "Forcer une vérification immédiate (admin uniquement)",

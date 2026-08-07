@@ -83,9 +83,7 @@
         "no_key": "No API key configured. Use `/watch apikey set` first.",
         "usage_title": "📊 SerpApi Usage",
         "plan": "Plan",
-        "remaining": "Searches Left",
-        "month_usage": "This Month",
-        "hour_usage": "This Hour"
+        "remaining": "Searches Left"
       },
       "run": {
         "description": "Force an immediate check (admin only)",
