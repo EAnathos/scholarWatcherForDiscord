@@ -17,7 +17,6 @@ export function buildNotificationEmbed(articles: ArticleData[], lang: string): E
   const date = new Date().toLocaleDateString(locale);
   const title = t('embeds.notification.title', lang);
   const footerText = `ScholarWatcher • ${date}`;
-  const authorsLabel = t('embeds.notification.authors', lang);
   const linkLabel = t('embeds.notification.link', lang);
 
   const embed = new EmbedBuilder()
@@ -30,11 +29,7 @@ export function buildNotificationEmbed(articles: ArticleData[], lang: string): E
 
   for (const article of articles.slice(0, 25)) {
     const name = article.title.slice(0, 256);
-    const parts: string[] = [];
-    if (article.authors) {
-      parts.push(`${authorsLabel}: ${article.authors}`);
-    }
-    const value = `${parts.join(' • ')}\n[${linkLabel}](${article.link})`.slice(0, FIELD_VALUE_LIMIT);
+    const value = `[${linkLabel}](${article.link})`.slice(0, FIELD_VALUE_LIMIT);
 
     if (totalChars + name.length + value.length > EMBED_CHAR_LIMIT) break;
 
