@@ -13,8 +13,10 @@ import { buildKeywordsEmbed } from '../../utils/embeds.js';
 
 const keywordSchema = z.string().min(2).max(200);
 
-export async function showAddModal(interaction: ButtonInteraction, lang: string): Promise<void> {
-  const modal = new ModalBuilder().setCustomId('kw_add_modal').setTitle(t('commands.keywords.add.modal_title', lang));
+export async function showAddModal(interaction: ButtonInteraction, lang: string, watchChannelId: number): Promise<void> {
+  const modal = new ModalBuilder()
+    .setCustomId(`kw_add_modal:${watchChannelId}`)
+    .setTitle(t('commands.keywords.add.modal_title', lang));
 
   const input = new TextInputBuilder()
     .setCustomId('kw_value')
@@ -29,7 +31,7 @@ export async function showAddModal(interaction: ButtonInteraction, lang: string)
   await interaction.showModal(modal);
 }
 
-export async function handleAddSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+export async function handleAddSubmit(interaction: ModalSubmitInteraction, watchChannelId: number): Promise<void> {
   const guildId = interaction.guildId!;
   const guild = await configService.getOrCreateGuild(guildId);
   const lang = guild.language;
@@ -44,7 +46,7 @@ export async function handleAddSubmit(interaction: ModalSubmitInteraction): Prom
     return;
   }
 
-  const keyword = await configService.addKeyword(guildId, value);
+  const keyword = await configService.addKeyword(watchChannelId, value);
   if (!keyword) {
     await interaction.reply({
       content: t('commands.keywords.add.duplicate', lang, { keyword: value }),
@@ -53,7 +55,7 @@ export async function handleAddSubmit(interaction: ModalSubmitInteraction): Prom
     return;
   }
 
-  const { keywords, totalPages } = await configService.getKeywordsPaginated(guildId, 1);
+  const { keywords, totalPages } = await configService.getKeywordsPaginated(watchChannelId, 1);
   const embed = buildKeywordsEmbed(keywords, lang, 1, totalPages);
 
   await interaction.reply({

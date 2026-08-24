@@ -1,6 +1,6 @@
 # ScholarWatchForDiscord
 
-Discord bot for automated bibliographic monitoring. Watches Google Scholar (via SerpApi) for new publications matching user-defined keywords and posts notifications to a configured channel.
+Discord bot for automated bibliographic monitoring. Watches Google Scholar (via SerpApi) for new publications matching user-defined keywords and posts notifications to configured channels. Supports multiple watch channels per guild, each with its own keyword list.
 
 ## Commands
 

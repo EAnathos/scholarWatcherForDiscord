@@ -58,17 +58,20 @@ export function buildKeywordsEmbed(
   lang: string,
   page: number,
   totalPages: number,
+  channelId?: string,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(t('commands.keywords.list.title', lang))
     .setColor(0x7289da);
 
+  const prefix = channelId ? `<#${channelId}>\n\n` : '';
+
   if (keywords.length === 0) {
-    embed.setDescription(t('commands.keywords.list.empty', lang));
+    embed.setDescription(prefix + t('commands.keywords.list.empty', lang));
   } else {
     const offset = (page - 1) * KEYWORDS_PER_PAGE;
     const list = keywords.map((kw, i) => `\`${offset + i + 1}\`. ${kw.value}`).join('\n');
-    embed.setDescription(list);
+    embed.setDescription(prefix + list);
   }
 
   if (totalPages > 1) {
@@ -82,14 +85,15 @@ export function buildKeywordsComponents(
   lang: string,
   page: number,
   totalPages: number,
+  watchChannelId: number,
 ): ActionRowBuilder<ButtonBuilder>[] {
   const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setCustomId('kw_add')
+      .setCustomId(`kw_add:${watchChannelId}`)
       .setLabel(t('commands.keywords.add.button', lang))
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
-      .setCustomId('kw_remove')
+      .setCustomId(`kw_remove:${watchChannelId}`)
       .setLabel(t('commands.keywords.remove.button', lang))
       .setStyle(ButtonStyle.Danger),
   );
@@ -99,12 +103,12 @@ export function buildKeywordsComponents(
   if (totalPages > 1) {
     const pagination = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`kw_prev_${page}`)
+        .setCustomId(`kw_prev:${watchChannelId}:${page}`)
         .setLabel('◀')
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(page <= 1),
       new ButtonBuilder()
-        .setCustomId(`kw_next_${page}`)
+        .setCustomId(`kw_next:${watchChannelId}:${page}`)
         .setLabel('▶')
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(page >= totalPages),
@@ -117,24 +121,35 @@ export function buildKeywordsComponents(
 
 export function buildStatusEmbed(
   config: {
-    channelId: string | null;
+    watchChannels: { channelId: string; name: string | null; keywordsCount: number }[];
     cronSchedule: string;
     language: string;
     sources: string[];
     enabled: boolean;
-    keywordsCount: number;
+    totalKeywords: number;
     hasSerpApiKey: boolean;
   },
   lang: string,
 ): EmbedBuilder {
+  let channelsValue: string;
+  if (config.watchChannels.length === 0) {
+    channelsValue = t('commands.watch.status.not_set', lang);
+  } else {
+    channelsValue = config.watchChannels
+      .map((wc) => {
+        const label = wc.name ? ` — *${wc.name}*` : '';
+        return `<#${wc.channelId}>${label} (${wc.keywordsCount})`;
+      })
+      .join('\n');
+  }
+
   return new EmbedBuilder()
     .setTitle(t('commands.watch.status.title', lang))
     .setColor(config.enabled ? 0x43b581 : 0xf04747)
     .addFields(
       {
-        name: t('commands.watch.status.channel', lang),
-        value: config.channelId ? `<#${config.channelId}>` : t('commands.watch.status.not_set', lang),
-        inline: true,
+        name: t('commands.watch.status.channels', lang),
+        value: channelsValue,
       },
       {
         name: t('commands.watch.status.schedule', lang),
@@ -160,7 +175,7 @@ export function buildStatusEmbed(
       },
       {
         name: t('commands.watch.status.keywords_count', lang),
-        value: String(config.keywordsCount),
+        value: String(config.totalKeywords),
         inline: true,
       },
       {

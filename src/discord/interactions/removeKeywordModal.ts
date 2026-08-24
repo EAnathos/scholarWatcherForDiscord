@@ -10,9 +10,9 @@ import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
 import { buildKeywordsEmbed } from '../../utils/embeds.js';
 
-export async function showRemoveModal(interaction: ButtonInteraction, lang: string): Promise<void> {
+export async function showRemoveModal(interaction: ButtonInteraction, lang: string, watchChannelId: number): Promise<void> {
   const modal = new ModalBuilder()
-    .setCustomId('kw_remove_modal')
+    .setCustomId(`kw_remove_modal:${watchChannelId}`)
     .setTitle(t('commands.keywords.remove.modal_title', lang));
 
   const input = new TextInputBuilder()
@@ -28,7 +28,7 @@ export async function showRemoveModal(interaction: ButtonInteraction, lang: stri
   await interaction.showModal(modal);
 }
 
-export async function handleRemoveSubmit(interaction: ModalSubmitInteraction): Promise<void> {
+export async function handleRemoveSubmit(interaction: ModalSubmitInteraction, watchChannelId: number): Promise<void> {
   const guildId = interaction.guildId!;
   const guild = await configService.getOrCreateGuild(guildId);
   const lang = guild.language;
@@ -43,7 +43,7 @@ export async function handleRemoveSubmit(interaction: ModalSubmitInteraction): P
     return;
   }
 
-  const allKeywords = await configService.getKeywords(guildId);
+  const allKeywords = await configService.getKeywords(watchChannelId);
   const target = allKeywords[position - 1];
   if (!target) {
     await interaction.reply({
@@ -53,9 +53,9 @@ export async function handleRemoveSubmit(interaction: ModalSubmitInteraction): P
     return;
   }
 
-  await configService.removeKeyword(guildId, target.id);
+  await configService.removeKeyword(watchChannelId, target.id);
 
-  const { keywords, totalPages } = await configService.getKeywordsPaginated(guildId, 1);
+  const { keywords, totalPages } = await configService.getKeywordsPaginated(watchChannelId, 1);
   const embed = buildKeywordsEmbed(keywords, lang, 1, totalPages);
 
   await interaction.reply({

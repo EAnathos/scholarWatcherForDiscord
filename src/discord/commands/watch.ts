@@ -23,16 +23,39 @@ export const data = new SlashCommandBuilder()
   .setName('watch')
   .setDescription('Configure bibliographic watch settings')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-  .addSubcommand((sub) =>
-    sub
+  .addSubcommandGroup((group) =>
+    group
       .setName('channel')
-      .setDescription('Set the notification channel')
-      .addChannelOption((opt) =>
-        opt
-          .setName('channel')
-          .setDescription('Target channel')
-          .setRequired(true)
-          .addChannelTypes(ChannelType.GuildText),
+      .setDescription('Manage watch channels')
+      .addSubcommand((sub) =>
+        sub
+          .setName('add')
+          .setDescription('Add a notification channel')
+          .addChannelOption((opt) =>
+            opt
+              .setName('channel')
+              .setDescription('Target channel')
+              .setRequired(true)
+              .addChannelTypes(ChannelType.GuildText),
+          )
+          .addStringOption((opt) =>
+            opt.setName('name').setDescription('Optional label for this channel (e.g. "ants", "ecology")'),
+          ),
+      )
+      .addSubcommand((sub) =>
+        sub
+          .setName('remove')
+          .setDescription('Remove a notification channel')
+          .addChannelOption((opt) =>
+            opt
+              .setName('channel')
+              .setDescription('Channel to remove')
+              .setRequired(true)
+              .addChannelTypes(ChannelType.GuildText),
+          ),
+      )
+      .addSubcommand((sub) =>
+        sub.setName('list').setDescription('List all notification channels'),
       ),
   )
   .addSubcommandGroup((group) =>
@@ -105,11 +128,56 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   const subgroup = interaction.options.getSubcommandGroup(false);
   const sub = interaction.options.getSubcommand();
 
-  if (sub === 'channel') {
+  if (subgroup === 'channel' && sub === 'add') {
     const channel = interaction.options.getChannel('channel', true);
-    await configService.setChannel(guildId, channel.id);
+    const name = interaction.options.getString('name') ?? undefined;
+    const wc = await configService.addWatchChannel(guildId, channel.id, name);
+    if (!wc) {
+      await interaction.reply({
+        content: t('commands.watch.channel.already_exists', lang, { channel: `<#${channel.id}>` }),
+        flags: ['Ephemeral'],
+      });
+      return;
+    }
     await interaction.reply({
-      content: t('commands.watch.channel.success', lang, { channel: `<#${channel.id}>` }),
+      content: t('commands.watch.channel.added', lang, { channel: `<#${channel.id}>` }),
+      flags: ['Ephemeral'],
+    });
+    return;
+  }
+
+  if (subgroup === 'channel' && sub === 'remove') {
+    const channel = interaction.options.getChannel('channel', true);
+    const removed = await configService.removeWatchChannel(guildId, channel.id);
+    if (!removed) {
+      await interaction.reply({
+        content: t('commands.watch.channel.not_found', lang, { channel: `<#${channel.id}>` }),
+        flags: ['Ephemeral'],
+      });
+      return;
+    }
+    await interaction.reply({
+      content: t('commands.watch.channel.removed', lang, { channel: `<#${channel.id}>` }),
+      flags: ['Ephemeral'],
+    });
+    return;
+  }
+
+  if (subgroup === 'channel' && sub === 'list') {
+    const watchChannels = await configService.getWatchChannels(guildId);
+    if (watchChannels.length === 0) {
+      await interaction.reply({
+        content: t('commands.watch.channel.none', lang),
+        flags: ['Ephemeral'],
+      });
+      return;
+    }
+    const lines = watchChannels.map((wc) => {
+      const label = wc.name ? ` — *${wc.name}*` : '';
+      return `• <#${wc.channelId}>${label} (${wc.keywords.length} ${t('commands.watch.channel.keywords_suffix', lang)})`;
+    });
+    await interaction.reply({
+      content: `**${t('commands.watch.channel.list_title', lang)}**\n${lines.join('\n')}`,
       flags: ['Ephemeral'],
     });
     return;
@@ -226,15 +294,20 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   }
 
   if (sub === 'status') {
-    const keywords = await configService.getKeywords(guildId);
+    const watchChannels = await configService.getWatchChannels(guildId);
+    const totalKeywords = watchChannels.reduce((sum, wc) => sum + wc.keywords.length, 0);
     const embed = buildStatusEmbed(
       {
-        channelId: guild.channelId,
+        watchChannels: watchChannels.map((wc) => ({
+          channelId: wc.channelId,
+          name: wc.name,
+          keywordsCount: wc.keywords.length,
+        })),
         cronSchedule: guild.cronSchedule,
         language: guild.language,
         sources: configService.getSourceList(guild),
         enabled: guild.enabled,
-        keywordsCount: keywords.length,
+        totalKeywords,
         hasSerpApiKey: guild.serpApiKey !== null,
       },
       lang,
@@ -244,7 +317,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
   }
 
   if (sub === 'run') {
-    if (!guild.channelId) {
+    const watchChannels = await configService.getWatchChannels(guildId);
+    if (watchChannels.length === 0) {
       await interaction.reply({
         content: t('commands.watch.run.no_channel', lang),
         flags: ['Ephemeral'],
@@ -252,8 +326,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
       return;
     }
 
-    const keywords = await configService.getKeywords(guildId);
-    if (keywords.length === 0) {
+    const totalKeywords = watchChannels.reduce((sum, wc) => sum + wc.keywords.length, 0);
+    if (totalKeywords === 0) {
       await interaction.reply({
         content: t('commands.watch.run.no_keywords', lang),
         flags: ['Ephemeral'],

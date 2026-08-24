@@ -2,7 +2,8 @@
   "commands": {
     "keywords": {
       "title": "Mots-clés",
-      "description": "Gérer les mots-clés de veille du serveur",
+      "description": "Gérer les mots-clés de veille d'un salon",
+      "not_a_watch_channel": "{{channel}} n'est pas un salon de veille. Utilisez `/watch channel add` d'abord, ou spécifiez un salon avec l'option `channel`.",
       "list": {
         "title": "📚 Mots-clés de veille",
         "empty": "Aucun mot-clé configuré. \nCliquez sur **➕ Ajouter** pour commencer !",
@@ -24,16 +25,21 @@
         "input_label": "ID à supprimer",
         "input_placeholder": "1",
         "success": "Mot-clé #{{id}} supprimé !",
-        "not_found": "Mot-clé #{{id}} introuvable sur ce serveur.",
+        "not_found": "Mot-clé #{{id}} introuvable sur ce salon.",
         "invalid": "Veuillez entrer un ID numérique valide."
       }
     },
     "watch": {
       "description": "Configurer les paramètres de veille bibliographique",
       "channel": {
-        "description": "Définir le salon de notification",
-        "success": "Les notifications seront envoyées dans {{channel}}.",
-        "missing": "Veuillez spécifier un salon textuel."
+        "description": "Gérer les salons de veille",
+        "added": "Salon de veille {{channel}} ajouté ! Utilisez `/keywords` dans ce salon pour configurer les mots-clés.",
+        "already_exists": "{{channel}} est déjà un salon de veille.",
+        "removed": "Salon de veille {{channel}} supprimé.",
+        "not_found": "{{channel}} n'est pas un salon de veille.",
+        "none": "Aucun salon de veille configuré. Utilisez `/watch channel add` pour commencer.",
+        "list_title": "Salons de veille",
+        "keywords_suffix": "mots-clés"
       },
       "schedule": {
         "hour": {
@@ -63,7 +69,7 @@
       "status": {
         "description": "Afficher la configuration actuelle",
         "title": "⚙️ Statut de la veille",
-        "channel": "Salon",
+        "channels": "Salons",
         "schedule": "Planning",
         "language": "Langue",
         "sources": "Sources",
@@ -90,8 +96,8 @@
         "started": "Vérification manuelle lancée…",
         "completed": "Vérification terminée ! {{count}} nouvel(aux) article(s) trouvé(s).",
         "no_results": "Vérification terminée. Aucun nouvel article trouvé.",
-        "no_channel": "Aucun salon de notification défini. Utilisez `/watch channel` d'abord.",
-        "no_keywords": "Aucun mot-clé configuré. Utilisez `/keywords` pour en ajouter."
+        "no_channel": "Aucun salon de veille configuré. Utilisez `/watch channel add` d'abord.",
+        "no_keywords": "Aucun mot-clé configuré sur aucun salon. Utilisez `/keywords` pour en ajouter."
       }
     }
   },
@@ -103,7 +109,7 @@
     },
     "welcome": {
       "title": "👋 ScholarWatch est prêt !",
-      "description": "Je surveille les publications scientifiques et vous notifie des nouveaux résultats.\n\nPour commencer :\n• `/keywords` — gérer vos mots-clés de veille\n• `/watch channel #salon` — définir le salon de notification\n• `/watch status` — voir la configuration actuelle"
+      "description": "Je surveille les publications scientifiques et vous notifie des nouveaux résultats.\n\nPour commencer :\n• `/watch channel add #salon` — ajouter un salon de veille\n• `/keywords` — gérer les mots-clés d'un salon\n• `/watch status` — voir la configuration actuelle"
     }
   },
   "errors": {

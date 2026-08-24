@@ -2,7 +2,8 @@
   "commands": {
     "keywords": {
       "title": "Keywords",
-      "description": "Manage watch keywords for this server",
+      "description": "Manage watch keywords for a channel",
+      "not_a_watch_channel": "{{channel}} is not a watch channel. Use `/watch channel add` first, or specify a watch channel with the `channel` option.",
       "list": {
         "title": "📚 Watch Keywords",
         "empty": "No keywords configured yet. \nClick **➕ Add** to get started!",
@@ -24,16 +25,21 @@
         "input_label": "ID to remove",
         "input_placeholder": "1",
         "success": "Keyword #{{id}} removed!",
-        "not_found": "Keyword #{{id}} not found on this server.",
+        "not_found": "Keyword #{{id}} not found on this channel.",
         "invalid": "Please enter a valid numeric ID."
       }
     },
     "watch": {
       "description": "Configure bibliographic watch settings",
       "channel": {
-        "description": "Set the notification channel",
-        "success": "Notifications will be sent to {{channel}}.",
-        "missing": "Please specify a text channel."
+        "description": "Manage watch channels",
+        "added": "Watch channel {{channel}} added! Use `/keywords` in that channel to configure keywords.",
+        "already_exists": "{{channel}} is already a watch channel.",
+        "removed": "Watch channel {{channel}} removed.",
+        "not_found": "{{channel}} is not a watch channel.",
+        "none": "No watch channels configured. Use `/watch channel add` to get started.",
+        "list_title": "Watch Channels",
+        "keywords_suffix": "keywords"
       },
       "schedule": {
         "hour": {
@@ -63,7 +69,7 @@
       "status": {
         "description": "Show current watch configuration",
         "title": "⚙️ Watch Status",
-        "channel": "Channel",
+        "channels": "Channels",
         "schedule": "Schedule",
         "language": "Language",
         "sources": "Sources",
@@ -90,8 +96,8 @@
         "started": "Manual check started…",
         "completed": "Check completed! {{count}} new article(s) found.",
         "no_results": "Check completed. No new articles found.",
-        "no_channel": "No notification channel set. Use `/watch channel` first.",
-        "no_keywords": "No keywords configured. Use `/keywords` to add some."
+        "no_channel": "No watch channels configured. Use `/watch channel add` first.",
+        "no_keywords": "No keywords configured on any channel. Use `/keywords` to add some."
       }
     }
   },
@@ -103,7 +109,7 @@
     },
     "welcome": {
       "title": "👋 ScholarWatch is ready!",
-      "description": "I monitor scientific publications and notify you of new results.\n\nGet started:\n• `/keywords` — manage your watch keywords\n• `/watch channel #channel` — set the notification channel\n• `/watch status` — view current configuration"
+      "description": "I monitor scientific publications and notify you of new results.\n\nGet started:\n• `/watch channel add #channel` — add a notification channel\n• `/keywords` — manage watch keywords for a channel\n• `/watch status` — view current configuration"
     }
   },
   "errors": {

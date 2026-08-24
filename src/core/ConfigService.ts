@@ -1,9 +1,11 @@
-import type { Guild, Keyword } from '@prisma/client';
+import type { Guild, Keyword, WatchChannel } from '@prisma/client';
 import * as cron from 'node-cron';
 import { prisma } from '../prisma/client.js';
 import { encrypt, decrypt } from '../utils/crypto.js';
 
 export const KEYWORDS_PER_PAGE = 25;
+
+export type WatchChannelWithKeywords = WatchChannel & { keywords: Keyword[] };
 
 export class ConfigService {
   async getOrCreateGuild(guildId: string): Promise<Guild> {
@@ -18,10 +20,35 @@ export class ConfigService {
     return prisma.guild.findUnique({ where: { id: guildId } });
   }
 
-  async setChannel(guildId: string, channelId: string): Promise<Guild> {
-    return prisma.guild.update({
-      where: { id: guildId },
-      data: { channelId },
+  async addWatchChannel(guildId: string, channelId: string, name?: string): Promise<WatchChannel | null> {
+    const existing = await prisma.watchChannel.findUnique({
+      where: { guildId_channelId: { guildId, channelId } },
+    });
+    if (existing) return null;
+
+    return prisma.watchChannel.create({
+      data: { guildId, channelId, name },
+    });
+  }
+
+  async removeWatchChannel(guildId: string, channelId: string): Promise<boolean> {
+    const { count } = await prisma.watchChannel.deleteMany({
+      where: { guildId, channelId },
+    });
+    return count > 0;
+  }
+
+  async getWatchChannels(guildId: string): Promise<WatchChannelWithKeywords[]> {
+    return prisma.watchChannel.findMany({
+      where: { guildId },
+      include: { keywords: true },
+      orderBy: { id: 'asc' },
+    });
+  }
+
+  async getWatchChannel(guildId: string, channelId: string): Promise<WatchChannel | null> {
+    return prisma.watchChannel.findUnique({
+      where: { guildId_channelId: { guildId, channelId } },
     });
   }
 
@@ -87,41 +114,41 @@ export class ConfigService {
     });
   }
 
-  async addKeyword(guildId: string, value: string): Promise<Keyword | null> {
+  async addKeyword(watchChannelId: number, value: string): Promise<Keyword | null> {
     const existing = await prisma.keyword.findUnique({
-      where: { guildId_value: { guildId, value } },
+      where: { watchChannelId_value: { watchChannelId, value } },
     });
     if (existing) return null;
 
     return prisma.keyword.create({
-      data: { guildId, value },
+      data: { watchChannelId, value },
     });
   }
 
-  async removeKeyword(guildId: string, keywordId: number): Promise<boolean> {
+  async removeKeyword(watchChannelId: number, keywordId: number): Promise<boolean> {
     const { count } = await prisma.keyword.deleteMany({
-      where: { id: keywordId, guildId },
+      where: { id: keywordId, watchChannelId },
     });
     return count > 0;
   }
 
-  async getKeywords(guildId: string): Promise<Keyword[]> {
+  async getKeywords(watchChannelId: number): Promise<Keyword[]> {
     return prisma.keyword.findMany({
-      where: { guildId },
+      where: { watchChannelId },
       orderBy: { id: 'asc' },
     });
   }
 
   async getKeywordsPaginated(
-    guildId: string,
+    watchChannelId: number,
     page: number,
   ): Promise<{ keywords: Keyword[]; page: number; totalPages: number }> {
-    const total = await prisma.keyword.count({ where: { guildId } });
+    const total = await prisma.keyword.count({ where: { watchChannelId } });
     const totalPages = Math.max(1, Math.ceil(total / KEYWORDS_PER_PAGE));
     const safePage = Math.min(Math.max(1, page), totalPages);
 
     const keywords = await prisma.keyword.findMany({
-      where: { guildId },
+      where: { watchChannelId },
       orderBy: { id: 'asc' },
       skip: (safePage - 1) * KEYWORDS_PER_PAGE,
       take: KEYWORDS_PER_PAGE,
@@ -130,10 +157,17 @@ export class ConfigService {
     return { keywords, page: safePage, totalPages };
   }
 
-  async getEnabledGuilds(): Promise<(Guild & { keywords: Keyword[] })[]> {
+  async getEnabledGuilds(): Promise<(Guild & { watchChannels: WatchChannelWithKeywords[] })[]> {
     return prisma.guild.findMany({
-      where: { enabled: true, channelId: { not: null } },
-      include: { keywords: true },
+      where: {
+        enabled: true,
+        watchChannels: { some: {} },
+      },
+      include: {
+        watchChannels: {
+          include: { keywords: true },
+        },
+      },
     });
   }
 }

@@ -7,28 +7,39 @@ generator client {
 }
 
 model Guild {
-  id           String    @id
-  channelId    String?
-  cronSchedule String    @default("0 4 * * *")
-  language     String    @default("en")
+  id               String         @id
+  cronSchedule     String         @default("0 4 * * *")
+  language         String         @default("en")
   serpApiKey        String?
-  sources          String    @default("serpapi")
-  antcatLastRefId  Int       @default(144725)
-  enabled          Boolean   @default(true)
-  keywords     Keyword[]
-  articles     Article[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  sources          String         @default("serpapi")
+  antcatLastRefId  Int            @default(144725)
+  enabled          Boolean        @default(true)
+  watchChannels    WatchChannel[]
+  articles         Article[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model WatchChannel {
+  id        Int       @id @default(autoincrement())
+  guildId   String
+  channelId String
+  name      String?
+  guild     Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  keywords  Keyword[]
+  createdAt DateTime  @default(now())
+
+  @@unique([guildId, channelId])
 }
 
 model Keyword {
-  id        Int      @id @default(autoincrement())
-  guildId   String
-  value     String
-  createdAt DateTime @default(now())
-  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  id             Int          @id @default(autoincrement())
+  watchChannelId Int
+  value          String
+  createdAt      DateTime     @default(now())
+  watchChannel   WatchChannel @relation(fields: [watchChannelId], references: [id], onDelete: Cascade)
 
-  @@unique([guildId, value])
+  @@unique([watchChannelId, value])
 }
 
 model Article {

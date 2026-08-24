@@ -1,6 +1,7 @@
 import type { Client } from 'discord.js';
 import * as cron from 'node-cron';
 import { configService } from './ConfigService.js';
+import type { WatchChannelWithKeywords } from './ConfigService.js';
 import { dedupService } from './DedupService.js';
 import type { RawArticle } from './DedupService.js';
 import { getAdapters } from '../sources/registry.js';
@@ -56,23 +57,46 @@ export class WatchService {
     const startTime = Date.now();
     const guild = await configService.getGuild(guildId);
 
-    if (!guild?.enabled || !guild.channelId) {
-      logger.debug({ guildId }, 'Guild disabled or no channel, skipping');
+    if (!guild?.enabled) {
+      logger.debug({ guildId }, 'Guild disabled, skipping');
       return 0;
     }
 
-    const keywords = await configService.getKeywords(guildId);
-    if (keywords.length === 0) {
-      logger.debug({ guildId }, 'No keywords, skipping');
+    const watchChannels = await configService.getWatchChannels(guildId);
+    if (watchChannels.length === 0) {
+      logger.debug({ guildId }, 'No watch channels, skipping');
+      return 0;
+    }
+
+    const sourceKeys = configService.getSourceList(guild);
+    const adapters = getAdapters(sourceKeys);
+    let totalNew = 0;
+
+    for (const wc of watchChannels) {
+      const count = await this.runForChannel(guildId, wc, sourceKeys, adapters, guild.language);
+      totalNew += count;
+    }
+
+    logger.info({ guildId, totalNew, elapsed_ms: Date.now() - startTime }, 'Guild run complete');
+    return totalNew;
+  }
+
+  private async runForChannel(
+    guildId: string,
+    wc: WatchChannelWithKeywords,
+    sourceKeys: string[],
+    adapters: ReturnType<typeof getAdapters>,
+    language: string,
+  ): Promise<number> {
+    if (wc.keywords.length === 0) {
+      logger.debug({ guildId, channelId: wc.channelId }, 'No keywords for channel, skipping');
       return 0;
     }
 
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const keywordValues = keywords.map((k) => k.value);
-    const sourceKeys = configService.getSourceList(guild);
-    const adapters = getAdapters(sourceKeys);
+    const keywordValues = wc.keywords.map((k) => k.value);
 
-    logger.info({ guildId, keywords: keywordValues.length, sources: sourceKeys }, 'Running search');
+    logger.info({ guildId, channelId: wc.channelId, keywords: keywordValues.length, sources: sourceKeys }, 'Running search for channel');
 
     const allRawArticles: RawArticle[] = [];
     for (const adapter of adapters) {
@@ -80,33 +104,32 @@ export class WatchService {
         const results = await adapter.search(keywordValues, since, guildId);
         allRawArticles.push(...results);
       } catch (error) {
-        logger.error({ guildId, source: adapter.name, error }, 'Source search failed');
+        logger.error({ guildId, channelId: wc.channelId, source: adapter.name, error }, 'Source search failed');
       }
     }
 
     const newArticles = await dedupService.filterNew(guildId, allRawArticles);
 
     if (newArticles.length === 0) {
-      logger.info({ guildId, elapsed_ms: Date.now() - startTime }, 'No new articles');
+      logger.info({ guildId, channelId: wc.channelId }, 'No new articles for channel');
       return 0;
     }
 
-    const channel = await this.client.channels.fetch(guild.channelId).catch(() => null);
+    const channel = await this.client.channels.fetch(wc.channelId).catch(() => null);
     if (!channel?.isTextBased() || channel.isDMBased()) {
-      logger.warn({ guildId, channelId: guild.channelId }, 'Channel not found or not a text channel');
+      logger.warn({ guildId, channelId: wc.channelId }, 'Channel not found or not a text channel');
       await dedupService.markNotified(guildId, newArticles);
       return 0;
     }
 
     try {
-      const embed = buildNotificationEmbed(newArticles, guild.language);
+      const embed = buildNotificationEmbed(newArticles, language);
       await channel.send({ embeds: [embed] });
     } catch (error) {
-      logger.error({ guildId, error }, 'Failed to send notification');
+      logger.error({ guildId, channelId: wc.channelId, error }, 'Failed to send notification');
     }
 
     await dedupService.markNotified(guildId, newArticles);
-
     return newArticles.length;
   }
 }

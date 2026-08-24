@@ -61,6 +61,14 @@ export function createBot(): { client: Client; watchService: WatchService } {
   return { client, watchService };
 }
 
+function parseCustomId(customId: string): { action: string; watchChannelId: number; extra?: string } | null {
+  const parts = customId.split(':');
+  if (parts.length < 2) return null;
+  const watchChannelId = parseInt(parts[1], 10);
+  if (isNaN(watchChannelId)) return null;
+  return { action: parts[0], watchChannelId, extra: parts[2] };
+}
+
 async function handleInteraction(interaction: Interaction): Promise<void> {
   try {
     if (!interaction.guildId) return;
@@ -78,36 +86,36 @@ async function handleInteraction(interaction: Interaction): Promise<void> {
       const guild = await configService.getOrCreateGuild(guildId);
       const lang = guild.language;
 
-      if (interaction.customId === 'kw_add') {
-        await showAddModal(interaction, lang);
+      const parsed = parseCustomId(interaction.customId);
+      if (!parsed) return;
+
+      if (parsed.action === 'kw_add') {
+        await showAddModal(interaction, lang, parsed.watchChannelId);
         return;
       }
 
-      if (interaction.customId === 'kw_remove') {
-        await showRemoveModal(interaction, lang);
+      if (parsed.action === 'kw_remove') {
+        await showRemoveModal(interaction, lang, parsed.watchChannelId);
         return;
       }
 
-      if (
-        interaction.customId.startsWith('kw_prev_') ||
-        interaction.customId.startsWith('kw_next_')
-      ) {
-        const currentPage = parseInt(interaction.customId.split('_')[2], 10);
-        const page = interaction.customId.startsWith('kw_prev_')
-          ? currentPage - 1
-          : currentPage + 1;
-        await handlePagination(interaction, guildId, lang, page);
+      if (parsed.action === 'kw_prev' || parsed.action === 'kw_next') {
+        const currentPage = parseInt(parsed.extra ?? '1', 10);
+        const page = parsed.action === 'kw_prev' ? currentPage - 1 : currentPage + 1;
+        await handlePagination(interaction, lang, parsed.watchChannelId, page);
         return;
       }
     }
 
     if (interaction.isModalSubmit()) {
-      if (interaction.customId === 'kw_add_modal') {
-        await handleAddSubmit(interaction);
+      const parsed = parseCustomId(interaction.customId);
+
+      if (parsed?.action === 'kw_add_modal') {
+        await handleAddSubmit(interaction, parsed.watchChannelId);
         return;
       }
-      if (interaction.customId === 'kw_remove_modal') {
-        await handleRemoveSubmit(interaction);
+      if (parsed?.action === 'kw_remove_modal') {
+        await handleRemoveSubmit(interaction, parsed.watchChannelId);
         return;
       }
       if (interaction.customId === 'apikey_set_modal') {
@@ -135,13 +143,13 @@ async function handleInteraction(interaction: Interaction): Promise<void> {
 
 async function handlePagination(
   interaction: import('discord.js').ButtonInteraction,
-  guildId: string,
   lang: string,
+  watchChannelId: number,
   requestedPage: number,
 ): Promise<void> {
-  const { keywords, page, totalPages } = await configService.getKeywordsPaginated(guildId, requestedPage);
+  const { keywords, page, totalPages } = await configService.getKeywordsPaginated(watchChannelId, requestedPage);
   const embed = buildKeywordsEmbed(keywords, lang, page, totalPages);
-  const components = buildKeywordsComponents(lang, page, totalPages);
+  const components = buildKeywordsComponents(lang, page, totalPages, watchChannelId);
 
   await interaction.update({ embeds: [embed], components });
 }
