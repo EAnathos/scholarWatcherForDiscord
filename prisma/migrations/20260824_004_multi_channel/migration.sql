@@ -34,8 +34,8 @@ DELETE FROM "Keyword" WHERE "watchChannelId" IS NULL;
 -- Make watchChannelId non-nullable
 ALTER TABLE "Keyword" ALTER COLUMN "watchChannelId" SET NOT NULL;
 
--- Drop old constraints and columns
-ALTER TABLE "Keyword" DROP CONSTRAINT "Keyword_guildId_value_key";
+-- Drop old index and foreign key
+DROP INDEX "Keyword_guildId_value_key";
 ALTER TABLE "Keyword" DROP CONSTRAINT "Keyword_guildId_fkey";
 ALTER TABLE "Keyword" DROP COLUMN "guildId";
 
