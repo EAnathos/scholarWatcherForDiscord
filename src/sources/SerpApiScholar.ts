@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto';
 import type { RawArticle } from '../core/DedupService.js';
 import type { SourceAdapter } from './SourceAdapter.js';
 import { configService } from '../core/ConfigService.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('serpapi');
 import { fetchWithRetry } from '../utils/fetchWithRetry.js';
 
 interface SerpApiOrganicResult {

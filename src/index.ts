@@ -2,7 +2,9 @@ import './i18n/index.js';
 import { createBot, HEALTH_FILE } from './discord/client.js';
 import { env } from './config/env.js';
 import { prisma } from './prisma/client.js';
-import { logger } from './utils/logger.js';
+import { createLogger } from './utils/logger.js';
+
+const logger = createLogger('main');
 import { unlinkSync } from 'node:fs';
 
 async function main(): Promise<void> {

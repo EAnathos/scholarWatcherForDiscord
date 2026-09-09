@@ -1,4 +1,6 @@
-import { logger } from './logger.js';
+import { createLogger } from './logger.js';
+
+const logger = createLogger('http');
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;

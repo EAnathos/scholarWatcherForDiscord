@@ -7,3 +7,7 @@ export const logger = pino({
     level: (label) => ({ level: label }),
   },
 });
+
+export function createLogger(module: string): pino.Logger {
+  return logger.child({ module });
+}

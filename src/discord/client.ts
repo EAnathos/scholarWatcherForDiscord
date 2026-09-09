@@ -10,7 +10,9 @@ import {
 import { configService } from '../core/ConfigService.js';
 import { WatchService } from '../core/WatchService.js';
 import { t } from '../i18n/index.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('discord');
 import { buildKeywordsEmbed, buildKeywordsComponents, buildWelcomeEmbed } from '../utils/embeds.js';
 import * as helpCommand from './commands/help.js';
 import * as keywordsCommand from './commands/keywords.js';

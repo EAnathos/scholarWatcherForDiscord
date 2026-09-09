@@ -1,7 +1,9 @@
 import type { RawArticle } from '../core/DedupService.js';
 import type { SourceAdapter } from './SourceAdapter.js';
 import { prisma } from '../prisma/client.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('antcat');
 import { fetchWithRetry } from '../utils/fetchWithRetry.js';
 
 interface AntCatReferenceData {

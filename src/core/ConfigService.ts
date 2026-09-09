@@ -2,6 +2,9 @@ import type { Guild, Keyword, WatchChannel } from '@prisma/client';
 import * as cron from 'node-cron';
 import { prisma } from '../prisma/client.js';
 import { encrypt, decrypt } from '../utils/crypto.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('config');
 
 export const KEYWORDS_PER_PAGE = 25;
 
@@ -26,15 +29,18 @@ export class ConfigService {
     });
     if (existing) return null;
 
-    return prisma.watchChannel.create({
+    const wc = await prisma.watchChannel.create({
       data: { guildId, channelId, name },
     });
+    logger.info({ guildId, channelId, name }, 'Watch channel added');
+    return wc;
   }
 
   async removeWatchChannel(guildId: string, channelId: string): Promise<boolean> {
     const { count } = await prisma.watchChannel.deleteMany({
       where: { guildId, channelId },
     });
+    if (count > 0) logger.info({ guildId, channelId }, 'Watch channel removed');
     return count > 0;
   }
 
@@ -56,21 +62,25 @@ export class ConfigService {
     if (!cron.validate(cronSchedule)) {
       throw new Error(`Invalid cron expression: ${cronSchedule}`);
     }
-    return prisma.guild.update({
+    const guild = await prisma.guild.update({
       where: { id: guildId },
       data: { cronSchedule },
     });
+    logger.info({ guildId, cronSchedule }, 'Cron schedule updated');
+    return guild;
   }
 
   async setLanguage(guildId: string, language: string): Promise<Guild> {
-    return prisma.guild.update({
+    const guild = await prisma.guild.update({
       where: { id: guildId },
       data: { language },
     });
+    logger.info({ guildId, language }, 'Language updated');
+    return guild;
   }
 
   async toggleEnabled(guildId: string): Promise<Guild> {
-    return prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx) => {
       const guild = await tx.guild.upsert({
         where: { id: guildId },
         create: { id: guildId },
@@ -81,13 +91,17 @@ export class ConfigService {
         data: { enabled: !guild.enabled },
       });
     });
+    logger.info({ guildId, enabled: updated.enabled }, 'Guild toggled');
+    return updated;
   }
 
   async setSources(guildId: string, sources: string[]): Promise<Guild> {
-    return prisma.guild.update({
+    const guild = await prisma.guild.update({
       where: { id: guildId },
       data: { sources: sources.join(',') },
     });
+    logger.info({ guildId, sources }, 'Sources updated');
+    return guild;
   }
 
   getSourceList(guild: Guild): string[] {
@@ -95,10 +109,12 @@ export class ConfigService {
   }
 
   async setSerpApiKey(guildId: string, apiKey: string): Promise<Guild> {
-    return prisma.guild.update({
+    const guild = await prisma.guild.update({
       where: { id: guildId },
       data: { serpApiKey: encrypt(apiKey) },
     });
+    logger.info({ guildId }, 'SerpApi key updated');
+    return guild;
   }
 
   async getSerpApiKey(guildId: string): Promise<string | null> {
@@ -112,6 +128,7 @@ export class ConfigService {
       where: { id: guildId },
       data: { enabled: false },
     });
+    logger.info({ guildId }, 'Guild disabled');
   }
 
   async addKeyword(watchChannelId: number, value: string): Promise<Keyword | null> {
@@ -120,15 +137,18 @@ export class ConfigService {
     });
     if (existing) return null;
 
-    return prisma.keyword.create({
+    const keyword = await prisma.keyword.create({
       data: { watchChannelId, value },
     });
+    logger.info({ watchChannelId, value }, 'Keyword added');
+    return keyword;
   }
 
   async removeKeyword(watchChannelId: number, keywordId: number): Promise<boolean> {
     const { count } = await prisma.keyword.deleteMany({
       where: { id: keywordId, watchChannelId },
     });
+    if (count > 0) logger.info({ watchChannelId, keywordId }, 'Keyword removed');
     return count > 0;
   }
 

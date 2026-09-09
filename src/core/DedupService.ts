@@ -1,4 +1,7 @@
 import { prisma } from '../prisma/client.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('dedup');
 
 export interface RawArticle {
   externalId: string;
@@ -21,7 +24,9 @@ export class DedupService {
     });
 
     const existingSet = new Set(existing.map((e) => e.externalId));
-    return articles.filter((a) => !existingSet.has(a.externalId));
+    const newArticles = articles.filter((a) => !existingSet.has(a.externalId));
+    logger.debug({ guildId, total: articles.length, new: newArticles.length, duplicates: existingSet.size }, 'Dedup completed');
+    return newArticles;
   }
 
   async markNotified(guildId: string, articles: RawArticle[]): Promise<void> {
@@ -40,6 +45,7 @@ export class DedupService {
       })),
       skipDuplicates: true,
     });
+    logger.debug({ guildId, count: articles.length }, 'Articles marked as notified');
   }
 }
 

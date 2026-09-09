@@ -9,6 +9,9 @@ import {
 import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
 import { buildKeywordsEmbed } from '../../utils/embeds.js';
+import { createLogger } from '../../utils/logger.js';
+
+const logger = createLogger('modal:rmkw');
 
 export async function showRemoveModal(interaction: ButtonInteraction, lang: string, watchChannelId: number): Promise<void> {
   const modal = new ModalBuilder()
@@ -54,6 +57,7 @@ export async function handleRemoveSubmit(interaction: ModalSubmitInteraction, wa
   }
 
   await configService.removeKeyword(watchChannelId, target.id);
+  logger.debug({ guildId, watchChannelId, keywordId: target.id, position }, 'Keyword removed via modal');
 
   const { keywords, totalPages } = await configService.getKeywordsPaginated(watchChannelId, 1);
   const embed = buildKeywordsEmbed(keywords, lang, 1, totalPages);

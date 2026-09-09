@@ -1,3 +1,4 @@
+import pino from 'pino';
 import { z } from 'zod/v4';
 
 const envSchema = z.object({
@@ -10,10 +11,12 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+const bootLogger = pino({ name: 'env' });
+
 function loadEnv(): Env {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
-    console.error('Invalid environment variables:', z.prettifyError(result.error));
+    bootLogger.fatal({ errors: z.prettifyError(result.error) }, 'Invalid environment variables');
     process.exit(1);
   }
   return result.data;

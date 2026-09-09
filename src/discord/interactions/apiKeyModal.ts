@@ -9,6 +9,9 @@ import {
 import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
 import { fetchSerpApiAccount } from '../../sources/SerpApiScholar.js';
+import { createLogger } from '../../utils/logger.js';
+
+const logger = createLogger('modal:apikey');
 
 export async function showApiKeyModal(
   interaction: ChatInputCommandInteraction,
@@ -42,6 +45,7 @@ export async function handleApiKeySubmit(interaction: ModalSubmitInteraction): P
   const account = await fetchSerpApiAccount(apiKey);
 
   if (!account?.plan_name) {
+    logger.warn({ guildId }, 'Invalid API key submitted');
     await interaction.editReply({
       content: t('commands.watch.apikey.invalid', lang),
     });
@@ -49,6 +53,7 @@ export async function handleApiKeySubmit(interaction: ModalSubmitInteraction): P
   }
 
   await configService.setSerpApiKey(guildId, apiKey);
+  logger.info({ guildId }, 'API key validated and saved');
 
   await interaction.editReply({
     content: t('commands.watch.apikey.success', lang),

@@ -6,6 +6,9 @@ import {
 } from 'discord.js';
 import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
+import { createLogger } from '../../utils/logger.js';
+
+const logger = createLogger('cmd:keywords');
 import { buildKeywordsEmbed, buildKeywordsComponents } from '../../utils/embeds.js';
 
 export const data = new SlashCommandBuilder()
@@ -21,6 +24,7 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
   const guildId = interaction.guildId!;
+  logger.debug({ guildId, userId: interaction.user.id }, 'Command invoked');
   const guild = await configService.getOrCreateGuild(guildId);
   const lang = guild.language;
 

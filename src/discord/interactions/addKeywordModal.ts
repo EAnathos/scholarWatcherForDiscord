@@ -10,6 +10,9 @@ import { z } from 'zod/v4';
 import { configService } from '../../core/ConfigService.js';
 import { t } from '../../i18n/index.js';
 import { buildKeywordsEmbed } from '../../utils/embeds.js';
+import { createLogger } from '../../utils/logger.js';
+
+const logger = createLogger('modal:addkw');
 
 const keywordSchema = z.string().min(2).max(200);
 
@@ -48,6 +51,7 @@ export async function handleAddSubmit(interaction: ModalSubmitInteraction, watch
 
   const keyword = await configService.addKeyword(watchChannelId, value);
   if (!keyword) {
+    logger.debug({ guildId, watchChannelId, value }, 'Duplicate keyword rejected');
     await interaction.reply({
       content: t('commands.keywords.add.duplicate', lang, { keyword: value }),
       flags: ['Ephemeral'],

@@ -6,7 +6,9 @@ import { dedupService } from './DedupService.js';
 import type { RawArticle } from './DedupService.js';
 import { getAdapters } from '../sources/registry.js';
 import { buildNotificationEmbed } from '../utils/embeds.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('watch');
 
 const scheduledTasks = new Map<string, cron.ScheduledTask>();
 

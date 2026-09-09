@@ -8,6 +8,9 @@ import cron from 'node-cron';
 import { configService } from '../../core/ConfigService.js';
 import type { WatchService } from '../../core/WatchService.js';
 import { t } from '../../i18n/index.js';
+import { createLogger } from '../../utils/logger.js';
+
+const logger = createLogger('cmd:watch');
 import { buildStatusEmbed, buildUsageEmbed } from '../../utils/embeds.js';
 import { AVAILABLE_SOURCES } from '../../sources/registry.js';
 import { showApiKeyModal } from '../interactions/apiKeyModal.js';
@@ -127,6 +130,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
   const subgroup = interaction.options.getSubcommandGroup(false);
   const sub = interaction.options.getSubcommand();
+
+  logger.debug({ guildId, subgroup, sub, userId: interaction.user.id }, 'Command invoked');
 
   if (subgroup === 'channel' && sub === 'add') {
     const channel = interaction.options.getChannel('channel', true);

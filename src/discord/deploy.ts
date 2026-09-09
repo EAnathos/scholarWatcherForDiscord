@@ -1,6 +1,8 @@
 import { REST, Routes } from 'discord.js';
 import { env } from '../config/env.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+const logger = createLogger('deploy');
 import { data as helpData } from './commands/help.js';
 import { data as keywordsData } from './commands/keywords.js';
 import { data as watchData } from './commands/watch.js';
