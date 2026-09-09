@@ -1,10 +1,11 @@
 import { REST, Routes } from 'discord.js';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
+import { data as helpData } from './commands/help.js';
 import { data as keywordsData } from './commands/keywords.js';
 import { data as watchData } from './commands/watch.js';
 
-const commands = [keywordsData.toJSON(), watchData.toJSON()];
+const commands = [helpData.toJSON(), keywordsData.toJSON(), watchData.toJSON()];
 
 const rest = new REST({ version: '10' }).setToken(env.DISCORD_TOKEN);
 

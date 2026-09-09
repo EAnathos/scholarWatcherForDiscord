@@ -29,6 +29,28 @@
         "invalid": "Please enter a valid numeric ID."
       }
     },
+    "help": {
+      "title": "📖 ScholarWatch Help",
+      "description": "ScholarWatch monitors Google Scholar for new publications and notifies you in Discord.",
+      "fields": {
+        "getting_started": "Getting Started",
+        "apikey_desc": "Set your SerpApi API key",
+        "channel_add_desc": "Add a notification channel",
+        "keywords_desc": "Manage watch keywords",
+        "toggle_desc": "Enable or disable the watch",
+        "configuration": "Configuration",
+        "status_desc": "Show current configuration",
+        "schedule_desc": "Set daily check time (UTC)",
+        "language_desc": "Change bot language",
+        "sources_desc": "Toggle a source on/off",
+        "run_desc": "Force an immediate check",
+        "links": "Links",
+        "documentation": "Documentation",
+        "source_code": "Source Code",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Terms of Service"
+      }
+    },
     "watch": {
       "description": "Configure bibliographic watch settings",
       "channel": {

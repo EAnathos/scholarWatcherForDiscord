@@ -12,6 +12,7 @@ import { WatchService } from '../core/WatchService.js';
 import { t } from '../i18n/index.js';
 import { logger } from '../utils/logger.js';
 import { buildKeywordsEmbed, buildKeywordsComponents, buildWelcomeEmbed } from '../utils/embeds.js';
+import * as helpCommand from './commands/help.js';
 import * as keywordsCommand from './commands/keywords.js';
 import * as watchCommand from './commands/watch.js';
 import { showAddModal, handleAddSubmit } from './interactions/addKeywordModal.js';
@@ -22,6 +23,7 @@ import { writeFileSync } from 'node:fs';
 export const HEALTH_FILE = '/tmp/healthy';
 
 const commands = new Map<string, { execute: (i: ChatInputCommandInteraction) => Promise<void> }>();
+commands.set('help', helpCommand);
 commands.set('keywords', keywordsCommand);
 commands.set('watch', watchCommand);
 

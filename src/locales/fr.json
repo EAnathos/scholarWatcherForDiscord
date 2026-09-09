@@ -29,6 +29,28 @@
         "invalid": "Veuillez entrer un ID numérique valide."
       }
     },
+    "help": {
+      "title": "📖 Aide ScholarWatch",
+      "description": "ScholarWatch surveille Google Scholar pour les nouvelles publications et vous notifie sur Discord.",
+      "fields": {
+        "getting_started": "Pour commencer",
+        "apikey_desc": "Définir votre clé API SerpApi",
+        "channel_add_desc": "Ajouter un salon de notification",
+        "keywords_desc": "Gérer les mots-clés de veille",
+        "toggle_desc": "Activer ou désactiver la veille",
+        "configuration": "Configuration",
+        "status_desc": "Afficher la configuration actuelle",
+        "schedule_desc": "Définir l'heure de vérification quotidienne (UTC)",
+        "language_desc": "Changer la langue du bot",
+        "sources_desc": "Activer/désactiver une source",
+        "run_desc": "Forcer une vérification immédiate",
+        "links": "Liens",
+        "documentation": "Documentation",
+        "source_code": "Code source",
+        "privacy_policy": "Politique de confidentialité",
+        "terms_of_service": "Conditions d'utilisation"
+      }
+    },
     "watch": {
       "description": "Configurer les paramètres de veille bibliographique",
       "channel": {
