@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScholarWatch for Discord</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .tagline {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+    nav {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    nav a:hover {
+      border-color: var(--accent);
+      color: var(--accent-hover);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .card p, .card ul {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .card ul li {
+      padding: 0.25rem 0;
+    }
+    .card ul li::before {
+      content: "→ ";
+      color: var(--accent);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ScholarWatch</h1>
+    <p class="tagline">Automated bibliographic monitoring for Discord</p>
+
+    <nav>
+      <a href="https://github.com/EAnathos/scholarWatcherForDiscord">GitHub</a>
+      <a href="https://github.com/EAnathos/scholarWatcherForDiscord/wiki">Documentation</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+    </nav>
+
+    <div class="card">
+      <h2>What is ScholarWatch?</h2>
+      <p>ScholarWatch monitors Google Scholar for new publications matching your keywords and posts notifications directly to your Discord channels. Set up multiple watch channels, each with their own keyword list, to organize your monitoring by topic.</p>
+    </div>
+
+    <div class="card">
+      <h2>Quick Start</h2>
+      <ul>
+        <li>Set your SerpApi key with <code>/watch apikey set</code></li>
+        <li>Add a watch channel with <code>/watch channel add #channel</code></li>
+        <li>Add keywords with <code>/keywords</code></li>
+        <li>Enable the watch with <code>/watch toggle</code></li>
+      </ul>
+      <p style="margin-top: 0.75rem;">See the <a href="https://github.com/EAnathos/scholarWatcherForDiscord/wiki/Getting-Started">full setup guide</a> for details.</p>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+      <ul>
+        <li>Multiple watch channels per server with independent keywords</li>
+        <li>Flexible scheduling (daily hour or custom cron)</li>
+        <li>Google Scholar search syntax support</li>
+        <li>English and French language support</li>
+        <li>Self-hostable with Docker</li>
+      </ul>
+    </div>
+
+    <footer>
+      <a href="privacy.html">Privacy Policy</a> &middot; <a href="tos.html">Terms of Service</a> &middot; <a href="https://github.com/EAnathos/scholarWatcherForDiscord">Source Code</a>
+    </footer>
+  </div>
+</body>
+</html>

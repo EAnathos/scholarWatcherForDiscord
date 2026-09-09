@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — ScholarWatch</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 2rem; font-size: 0.9rem; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+    .updated { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    h2 {
+      font-size: 1.15rem;
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    p, li { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0.75rem; }
+    ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back">← Back to home</a>
+    <h1>Terms of Service</h1>
+    <p class="updated">Last updated: September 9, 2026</p>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>By adding ScholarWatch ("the Bot") to your Discord server or using its commands, you agree to these Terms of Service. If you do not agree, please remove the Bot from your server.</p>
+
+    <h2>2. Description of Service</h2>
+    <p>The Bot is an open-source tool that monitors Google Scholar for new scientific publications matching user-defined keywords and posts notifications to designated Discord channels. The Bot is provided free of charge.</p>
+
+    <h2>3. Requirements</h2>
+    <ul>
+      <li>You must comply with <a href="https://discord.com/terms">Discord's Terms of Service</a> and <a href="https://discord.com/developers/docs/policies-and-agreements/terms-of-service">Discord Developer Terms</a>.</li>
+      <li>You must provide your own SerpApi API key. Usage of SerpApi is subject to <a href="https://serpapi.com/legal">SerpApi's terms</a>.</li>
+      <li>You must have the Manage Server permission on the Discord server to configure the Bot.</li>
+    </ul>
+
+    <h2>4. Acceptable Use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Use the Bot for any purpose that violates applicable laws or regulations</li>
+      <li>Attempt to exploit, reverse-engineer, or interfere with the Bot's operation</li>
+      <li>Use the Bot to spam channels or abuse third-party APIs</li>
+      <li>Share your SerpApi key through the Bot with unauthorized parties</li>
+    </ul>
+
+    <h2>5. API Keys and Credentials</h2>
+    <p>You are solely responsible for your SerpApi API key. The Bot stores it to perform searches on your behalf. You should not share your API key with others. If your key is compromised, regenerate it on SerpApi and update it with <code>/watch apikey set</code>.</p>
+
+    <h2>6. Availability and Warranty</h2>
+    <p>The Bot is provided <strong>"as is"</strong> without warranties of any kind, express or implied. We do not guarantee:</p>
+    <ul>
+      <li>Uninterrupted or error-free operation</li>
+      <li>Completeness or accuracy of search results from Google Scholar</li>
+      <li>Availability of third-party services (Discord, SerpApi, Google Scholar)</li>
+    </ul>
+
+    <h2>7. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by law, the Bot's developers and operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of data, missed publications, or SerpApi quota consumption.</p>
+
+    <h2>8. Self-Hosting</h2>
+    <p>The Bot is open source. If you self-host the Bot, you are solely responsible for its operation, data security, and compliance with applicable laws. These Terms apply to the hosted instance; self-hosted instances are governed by the project's open-source license.</p>
+
+    <h2>9. Termination</h2>
+    <p>You may stop using the Bot at any time by removing it from your server. We reserve the right to restrict or terminate access to the Bot at any time, with or without notice, for any reason.</p>
+
+    <h2>10. Changes to These Terms</h2>
+    <p>We may update these Terms from time to time. Continued use of the Bot after changes constitutes acceptance of the new Terms. Changes will be reflected by the "Last updated" date at the top of this page.</p>
+
+    <h2>11. Contact</h2>
+    <p>For questions about these Terms, please open an issue on the <a href="https://github.com/EAnathos/scholarWatcherForDiscord">GitHub repository</a>.</p>
+
+    <footer>
+      <a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="https://github.com/EAnathos/scholarWatcherForDiscord">GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>
