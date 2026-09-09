@@ -1,0 +1,26 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_KEY_PASS }}
+          script: |
+            cd ~/eanathos/scholarWatchForDiscord
+            git pull
+            docker compose up -d --build
+            docker compose exec -T bot node dist/discord/deploy.js
